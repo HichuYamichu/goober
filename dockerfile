@@ -3,5 +3,5 @@ WORKDIR /usr/src/uploader
 COPY . .
 
 RUN cargo install --path .
-
+EXPOSE 8000
 CMD ["uploader"]

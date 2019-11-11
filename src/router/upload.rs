@@ -2,48 +2,32 @@ use std::env;
 use std::io;
 use std::path::Path;
 
-use rocket::http::Status;
-use rocket::request::{self, FromRequest, Request};
-use rocket::Outcome;
+use rocket::http::ContentType;
 use rocket::{post, Data};
 
-use crate::paste_id::PasteID;
+use rand::{self, Rng};
+
+use crate::guards::api_key::ApiKey;
 
 const ID_LENGTH: usize = 8;
-
-pub struct ApiKey(String);
-
-fn is_valid(provided: &str) -> bool {
-  let key = env::var("API_KEY").unwrap();
-  provided == key
-}
-
-#[derive(Debug)]
-pub enum ApiKeyError {
-  BadCount,
-  Missing,
-  Invalid,
-}
-
-impl<'a, 'r> FromRequest<'a, 'r> for ApiKey {
-  type Error = ApiKeyError;
-
-  fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
-    let keys: Vec<_> = request.headers().get("x-api-key").collect();
-    match keys.len() {
-      0 => Outcome::Failure((Status::BadRequest, ApiKeyError::Missing)),
-      1 if is_valid(keys[0]) => Outcome::Success(ApiKey(keys[0].to_string())),
-      1 => Outcome::Failure((Status::BadRequest, ApiKeyError::Invalid)),
-      _ => Outcome::Failure((Status::BadRequest, ApiKeyError::BadCount)),
-    }
-  }
-}
+const BASE62: &[u8] = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 #[post("/upload", data = "<paste>")]
-pub fn index(paste: Data, _key: ApiKey) -> Result<String, io::Error> {
-  let id = PasteID::new(ID_LENGTH);
-  let filename = format!("upload/{id}", id = id);
-  let url = format!("{host}/{id}\n", host = env::var("HOST").unwrap(), id = id);
+pub fn index(cont_type: &ContentType, paste: Data, _key: ApiKey) -> Result<String, io::Error> {
+  let mut id = String::with_capacity(ID_LENGTH);
+  let mut rng = rand::thread_rng();
+  for _ in 0..ID_LENGTH {
+    id.push(BASE62[rng.gen::<usize>() % 62] as char);
+  }
+  
+  let ext = cont_type.media_type().sub();
+  let filename = format!("upload/{id}.{ext}", id = id, ext = ext);
+  let url = format!(
+    "{host}/files/{id}.{ext}\n",
+    host = env::var("HOST").unwrap(),
+    id = id,
+    ext = ext
+  );
 
   paste.stream_to_file(Path::new(&filename))?;
   Ok(url)
