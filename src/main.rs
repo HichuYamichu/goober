@@ -10,6 +10,14 @@ fn main() {
   rocket::ignite()
     .register(catchers![router::not_found::index])
     .mount("/files", StaticFiles::from("upload"))
-    .mount("/", routes![router::index::index, router::upload::index])
+    .mount(
+      "/",
+      routes![
+        router::index::index,
+        router::upload::index,
+        router::remove::index,
+        router::list::index
+      ],
+    )
     .launch();
 }

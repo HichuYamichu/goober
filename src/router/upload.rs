@@ -14,6 +14,9 @@ const BASE62: &[u8] = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrst
 
 #[post("/upload", data = "<paste>")]
 pub fn index(cont_type: &ContentType, paste: Data, _key: ApiKey) -> Result<String, io::Error> {
+  let peek = paste.peek();
+  let res = peek.iter().map(|&c| c as char).collect::<String>();
+  println!("{:?}", res);
   let mut id = String::with_capacity(ID_LENGTH);
   let mut rng = rand::thread_rng();
   for _ in 0..ID_LENGTH {
