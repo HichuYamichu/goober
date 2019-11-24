@@ -1,6 +1,8 @@
 use rocket::catch;
+use rocket::response::Redirect;
+
 
 #[catch(404)]
-pub fn index() -> &'static str {
-  "404 Not found."
+pub fn index() -> Redirect {
+  Redirect::to("/")
 }
