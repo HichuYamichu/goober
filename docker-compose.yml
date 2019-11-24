@@ -3,10 +3,9 @@ version: '3.4'
 services:
   uploader:
     image: hichuyamichu/uploader:latest
-    env_file:
-      - ./.env
     volumes:
        - data:/usr/src/uploader/upload
+       - ./Config.toml:/usr/src/uploader/Config.toml
     restart: unless-stopped
     networks:
       - main

@@ -1,32 +1,41 @@
-use rocket::http::ContentType;
-use rocket::{post, Data};
-use std::env;
 use std::fs::File;
 use std::io;
 use std::io::prelude::*;
 use std::path::Path;
 
-use rand::{self, Rng};
+use rocket::http::ContentType;
+use rocket::response::Redirect;
+use rocket::{post, Data, State};
 
 use rocket_multipart_form_data::{
   MultipartFormData, MultipartFormDataError, MultipartFormDataField, MultipartFormDataOptions,
   RawField,
 };
 
-use rocket::response::Redirect;
+use rand::{self, Rng};
 
 use crate::guards::api_key::ApiKey;
 use crate::guards::user::User;
+use crate::Config;
 
 const ID_LENGTH: usize = 8;
 const BASE62: &[u8] = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 #[post("/upload", data = "<data>")]
-pub fn index(cont_type: &ContentType, data: Data, user: User) -> Result<Redirect, &'static str> {
+pub fn user_auth(
+  cont_type: &ContentType,
+  data: Data,
+  user_lvl: User,
+) -> Result<Redirect, &'static str> {
+  let mut size_limit: u64 = 4 * 1000 * 1000 * 100;
+  if user_lvl.0 == 1 {
+    size_limit = size_limit * 10;
+  }
+
   let mut options = MultipartFormDataOptions::new();
   options
     .allowed_fields
-    .push(MultipartFormDataField::raw("file").size_limit(2048 * 2048 * 64 * 1000));
+    .push(MultipartFormDataField::raw("file").size_limit(size_limit));
 
   let mut multipart_form_data = match MultipartFormData::parse(cont_type, data, options) {
     Ok(multipart_form_data) => multipart_form_data,
@@ -50,7 +59,7 @@ pub fn index(cont_type: &ContentType, data: Data, user: User) -> Result<Redirect
             let url = format!("/files/{file_name}", file_name = file_name);
             Ok(Redirect::to(url))
           }
-          _ => Err("Cannnot save the file."),
+          _ => Err("Cannot save the file."),
         }
       }
       RawField::Multiple(_) => unreachable!(),
@@ -59,19 +68,24 @@ pub fn index(cont_type: &ContentType, data: Data, user: User) -> Result<Redirect
   }
 }
 
-#[post("/upload", data = "<paste>", rank = 2)]
-pub fn sharex(cont_type: &ContentType, paste: Data, _key: ApiKey) -> Result<String, io::Error> {
+#[post("/upload", data = "<data>", rank = 2)]
+pub fn token_auth(
+  cont_type: &ContentType,
+  data: Data,
+  _key: ApiKey,
+  config: State<Config>,
+) -> Result<String, io::Error> {
   let id = generte_id();
   let ext = cont_type.media_type().sub();
   let filename = format!("upload/{id}.{ext}", id = id, ext = ext);
   let url = format!(
     "{host}/files/{id}.{ext}\n",
-    host = env::var("HOST").unwrap(),
+    host = &config.host,
     id = id,
     ext = ext
   );
 
-  paste.stream_to_file(Path::new(&filename))?;
+  data.stream_to_file(Path::new(&filename))?;
   Ok(url)
 }
 

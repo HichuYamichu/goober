@@ -4,13 +4,15 @@ use rocket::get;
 
 use rocket_contrib::templates::Template;
 
+use crate::guards::user::User;
+
 #[derive(Serialize)]
 struct Context {
   names: Vec<String>,
 }
 
 #[get("/list")]
-pub fn index() -> Template {
+pub fn index(_user: User) -> Template {
   let paths = fs::read_dir("upload").unwrap();
   let names = paths
     .map(|entry| {
