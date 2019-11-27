@@ -61,6 +61,8 @@ body {
   border-radius: 4px;
   transition: all 0.2s ease;
   outline: none;
+  box-sizing: border-box;
+  padding: 10px;
 }
 
 .loginForm p input {

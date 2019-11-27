@@ -27,9 +27,9 @@ pub fn user_auth(
   data: Data,
   user_lvl: User,
 ) -> Result<Redirect, &'static str> {
-  let mut size_limit: u64 = 4 * 1000 * 1000 * 100;
+  let mut size_limit: u64 = 10 * 1000 * 1000;
   if user_lvl.0 == 1 {
-    size_limit = size_limit * 10;
+    size_limit = size_limit * 15;
   }
 
   let mut options = MultipartFormDataOptions::new();
@@ -52,13 +52,13 @@ pub fn user_auth(
       RawField::Single(raw) => {
         let file_name = raw.file_name.unwrap_or(generte_id());
         let file_path = format!("upload/{file_name}", file_name = file_name);
-        let mut file = File::create(file_path).unwrap();
+        let mut file = match File::create(file_path) {
+          Ok(n) => n,
+          Err(_) => return Err("no input file"),
+        };
 
         match file.write_all(&raw.raw) {
-          Ok(()) => {
-            let url = format!("/files/{file_name}", file_name = file_name);
-            Ok(Redirect::to(url))
-          }
+          Ok(()) => Ok(Redirect::to("/list")),
           _ => Err("Cannot save the file."),
         }
       }
