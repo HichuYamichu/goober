@@ -1,0 +1,8 @@
+version: '3.4'
+  
+services:
+  uploader:
+    build: .
+    volumes:
+       - ./Config.toml:/usr/src/uploader/Config.toml
+    restart: unless-stopped

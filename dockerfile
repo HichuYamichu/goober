@@ -1,7 +1,9 @@
-FROM rustlang/rust:nightly
+FROM rustlang/rust:nightly AS builder
 WORKDIR /usr/src/uploader
 COPY . .
-
 RUN cargo install --path .
-EXPOSE 8000
+
+FROM debian:buster-slim
+COPY --from=builder /usr/local/cargo/bin/uploader /usr/local/bin/uploader
+
 CMD ["uploader"]
