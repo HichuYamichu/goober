@@ -1,6 +1,3 @@
-/target
-**/*.rs.bk
-/upload/*
-!/upload/.gitkeep
-.env
-Config.toml
+config.yaml
+upload/
+!upload/gitkeep

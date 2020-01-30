@@ -1,8 +1,0 @@
-host = ""
-api_key = ""
-
-[users]
-super_user_login = ""
-super_user_pass = ""
-regular_user_login = ""
-regular_user_pass = ""

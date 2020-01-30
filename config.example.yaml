@@ -1,0 +1,10 @@
+super_user:
+  login: ''
+  pass: ''
+
+user:
+  login: ''
+  pass: ''
+
+upload_dir: ''
+domain: ''
