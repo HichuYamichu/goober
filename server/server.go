@@ -1,8 +1,6 @@
 package server
 
 import (
-	"text/template"
-
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -24,24 +22,23 @@ func New() *echo.Echo {
 			return next(c)
 		}
 	})
-	e.Use(middleware.AddTrailingSlash())
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
 	p := prometheus.NewPrometheus("uploader", nil)
 	p.Use(e)
 
-	t := &Template{
-		templates: template.Must(template.ParseGlob("public/views/*.html")),
-	}
+	api := e.Group("/api")
+	api.POST("/upload", handlers.Upload, middleware.JWT([]byte("secret")))
+	api.GET("/download/:name", handlers.Download)
+	api.GET("/status", handlers.Status)
+	api.POST("/login", handlers.Login)
 
-	e.Renderer = t
-	e.POST("/upload", handlers.Upload)
-	e.GET("/download/:name", handlers.Download)
-	e.GET("/status", handlers.Status)
-	e.GET("/login", handlers.ServeLogin)
-	e.POST("/login", handlers.Login)
-	e.GET("/", handlers.Index)
-
+	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
+		Skipper: middleware.DefaultSkipper,
+		Root:    "client/public",
+		Index:   "index.html",
+		HTML5:   true,
+	}))
 	return e
 }

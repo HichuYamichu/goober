@@ -2,10 +2,13 @@ package handlers
 
 import (
 	"io/ioutil"
-	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
+
+type statusResponce struct {
+	files []string
+}
 
 func Status(c echo.Context) error {
 	dataDir := c.Get("uploadDir")
@@ -20,5 +23,6 @@ func Status(c echo.Context) error {
 		fileNames = append(fileNames, fName)
 	}
 
-	return c.Render(http.StatusOK, "status", fileNames)
+	res := &statusResponce{files: fileNames}
+	return c.JSON(200, res)
 }

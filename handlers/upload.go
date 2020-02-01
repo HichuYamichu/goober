@@ -41,5 +41,12 @@ func Upload(c echo.Context) error {
 		}
 	}
 
-	return c.Redirect(http.StatusSeeOther, "/status")
+	res := &uploadResponce{
+		MSG: "giratka",
+	}
+	return c.JSON(http.StatusSeeOther, res)
+}
+
+type uploadResponce struct {
+	MSG string
 }
