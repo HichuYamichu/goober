@@ -7,6 +7,7 @@
       username: event.target.username.value,
       password: event.target.password.value
     };
+
     const response = await fetch("/api/login", {
       method: "POST",
       headers: {
@@ -15,9 +16,17 @@
       },
       body: JSON.stringify(payload)
     });
+    
+    if (response.status !== 200) {
+      const errorEl = document.getElementById("error");
+      errorEl.style.color = "red";
+      errorEl.innerHTML = "Failed to authenticate";
+      return;
+    }
+
     const data = await response.json();
     token.update(() => data.token);
-    navigateTo('/')
+    navigateTo("/");
   }
 </script>
 
@@ -33,5 +42,6 @@
     <p>
       <input type="submit" value="login" />
     </p>
+    <p id="error" />
   </form>
 </main>

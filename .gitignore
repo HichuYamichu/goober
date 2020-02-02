@@ -1,8 +1,7 @@
 config.yaml
-upload/
-!upload/gitkeep
+data/
+build/
 
 node_modules/
-public/build/
 
 .DS_Store

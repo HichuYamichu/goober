@@ -1,10 +1,8 @@
-super_user:
-  login: ''
-  pass: ''
-
-user:
-  login: ''
-  pass: ''
-
+port: ''
+host: ''
+db_host: ''
+db_port: ''
+db_user: ''
+db_name: ''
+db_pass: ''
 upload_dir: ''
-domain: ''

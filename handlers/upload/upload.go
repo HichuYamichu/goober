@@ -1,11 +1,9 @@
 package handlers
 
 import (
-	"fmt"
-	"io"
 	"net/http"
-	"os"
 
+	uploadService "github.com/hichuyamichu-me/uploader/services/upload"
 	"github.com/labstack/echo/v4"
 )
 
@@ -22,23 +20,7 @@ func Upload(c echo.Context) error {
 	files := form.File["files"]
 
 	for _, file := range files {
-		src, err := file.Open()
-		if err != nil {
-			return err
-		}
-		defer src.Close()
-
-		dataDir := c.Get("uploadDir")
-		filePath := fmt.Sprintf("%s/%s", dataDir, file.Filename)
-		dst, err := os.Create(filePath)
-		if err != nil {
-			return err
-		}
-		defer dst.Close()
-
-		if _, err = io.Copy(dst, src); err != nil {
-			return err
-		}
+		uploadService.Save(file)
 	}
 
 	res := &uploadResponce{

@@ -1,13 +1,30 @@
 package server
 
 import (
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
 
-	"github.com/hichuyamichu-me/uploader/handlers"
+	uploadHandler "github.com/hichuyamichu-me/uploader/handlers/upload"
+	userHandler "github.com/hichuyamichu-me/uploader/handlers/users"
+	"github.com/spf13/viper"
 )
+
+func ensureClaim(key string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			user := c.Get("user").(*jwt.Token)
+			claims := user.Claims.(jwt.MapClaims)
+			isAdmin := claims[key].(bool)
+			if !isAdmin {
+				return echo.ErrUnauthorized
+			}
+			return next(c)
+		}
+	}
+}
 
 // New creates new server instance
 func New() *echo.Echo {
@@ -15,13 +32,6 @@ func New() *echo.Echo {
 	e.HideBanner = true
 	e.Logger.SetLevel(log.INFO)
 
-	conf := parseConfig()
-	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			c.Set("uploadDir", conf.UploadDir)
-			return next(c)
-		}
-	})
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
@@ -29,10 +39,18 @@ func New() *echo.Echo {
 	p.Use(e)
 
 	api := e.Group("/api")
-	api.POST("/upload", handlers.Upload, middleware.JWT([]byte("secret")))
-	api.GET("/download/:name", handlers.Download)
-	api.GET("/status", handlers.Status)
-	api.POST("/login", handlers.Login)
+	api.POST("/upload", uploadHandler.Upload, middleware.JWT([]byte(viper.GetString("secret_key"))))
+	api.GET("/download/:name", uploadHandler.Download)
+	api.GET("/status", uploadHandler.Status, middleware.JWT([]byte(viper.GetString("secret_key"))), ensureClaim("read"))
+	api.POST("/login", userHandler.Login)
+	api.POST("/register/:inviteID", userHandler.Register)
+
+	adminAPI := api.Group("/admin")
+	adminAPI.Use(middleware.JWT([]byte(viper.GetString("secret_key"))))
+	adminAPI.Use(ensureClaim("admin"))
+	adminAPI.POST("/invite", userHandler.Invite)
+	adminAPI.DELETE("/user", userHandler.DeleteUser)
+	adminAPI.PUT("/user", userHandler.UpdateUser)
 
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: middleware.DefaultSkipper,

@@ -10,13 +10,21 @@ import (
 	"time"
 
 	"github.com/hichuyamichu-me/uploader/server"
+	"github.com/hichuyamichu-me/uploader/store"
+	"github.com/spf13/viper"
 )
 
-var port = flag.String("port", "8000", "http service port")
-var host = flag.String("host", "127.0.0.1", "http service host")
-
 func main() {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("fatal error config file: %s", err))
+	}
+
 	flag.Parse()
+	store.ConnectDB()
 	srv := server.New()
 
 	go func() {
@@ -28,5 +36,7 @@ func main() {
 		srv.Shutdown(ctx)
 	}()
 
-	srv.Logger.Fatal(srv.Start(fmt.Sprintf("%s:%s", *host, *port)))
+	port := viper.GetString("port")
+	host := viper.GetString("host")
+	srv.Logger.Fatal(srv.Start(fmt.Sprintf("%s:%s", host, port)))
 }

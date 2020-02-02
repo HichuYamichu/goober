@@ -1,0 +1,10 @@
+package models
+
+type User struct {
+	ID       int `gorm:"type:serial;"`
+	Username string
+	Pass     string
+	Admin    bool
+	Read     bool
+	Write    bool
+}

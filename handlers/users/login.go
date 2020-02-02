@@ -1,12 +1,13 @@
-package handlers
+package users
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	usersService "github.com/hichuyamichu-me/uploader/services/users"
 	"github.com/labstack/echo/v4"
+	"github.com/spf13/viper"
 )
 
 type loginPayload struct {
@@ -17,13 +18,16 @@ type loginPayload struct {
 func Login(c echo.Context) error {
 	p := &loginPayload{}
 	if err := c.Bind(p); err != nil {
-		fmt.Println()
-		fmt.Println(err)
-		fmt.Println()
 		return err
 	}
 
-	if p.Username != "1234" || p.Password != "1234" {
+	user := usersService.FindOneByUsername(p.Username)
+	if user == nil {
+		return echo.ErrUnauthorized
+	}
+
+	match := usersService.CheckPasswordHash(p.Password, user.Pass)
+	if !match {
 		return echo.ErrUnauthorized
 	}
 
@@ -31,8 +35,12 @@ func Login(c echo.Context) error {
 
 	claims := token.Claims.(jwt.MapClaims)
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+	claims["username"] = user.Username
+	claims["admin"] = user.Admin
+	claims["read"] = user.Read
+	claims["write"] = user.Write
 
-	t, err := token.SignedString([]byte("secret"))
+	t, err := token.SignedString([]byte(viper.GetString("secret_key")))
 	if err != nil {
 		return err
 	}
