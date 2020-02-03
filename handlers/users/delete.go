@@ -1,15 +1,19 @@
 package users
 
 import (
-	"fmt"
+	"strconv"
+
+	usersService "github.com/hichuyamichu-me/uploader/services/users"
 
 	"github.com/labstack/echo/v4"
-	"github.com/spf13/viper"
 )
 
 func DeleteUser(c echo.Context) error {
-	fName := c.Param("name")
-	uploadDir := viper.GetString("upload_dir")
-	filePath := fmt.Sprintf("%s/%s", uploadDir, fName)
-	return c.File(filePath)
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		return err
+	}
+	usersService.Delete(id)
+	return nil
 }

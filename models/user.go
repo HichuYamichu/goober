@@ -5,6 +5,5 @@ type User struct {
 	Username string
 	Pass     string
 	Admin    bool
-	Read     bool
-	Write    bool
+	Quota    int64
 }

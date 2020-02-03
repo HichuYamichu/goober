@@ -17,14 +17,13 @@ func init() {
 	}
 }
 
-type Permissions struct {
-	Write bool `json:"write"`
-	Read  bool `json:"read"`
+type UserConfig struct {
+	Quota int64 `json:"quota"`
 }
 
-func GenereateInvite(p *Permissions) string {
+func GenereateInvite(p *UserConfig) string {
 	id := node.Generate().String()
-	store.Cache.HMSet(id, "write", p.Write, "read", p.Read)
+	store.Cache.HMSet(id, "quota", p.Quota)
 	store.Cache.Expire(id, time.Minute*30)
 	return id
 }

@@ -1,5 +1,9 @@
 import { writable } from 'svelte/store';
 
-let token = writable('');
+let user = writable({
+  username: '',
+  quota: 0,
+  admin: false
+});
 
-export { token };
+export { user };

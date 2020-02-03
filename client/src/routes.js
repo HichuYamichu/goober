@@ -1,18 +1,27 @@
 import Index from './views/index.svelte';
 import Login from './views/login.svelte';
-import { token } from './store.js';
+import Admin from './views/admin.svelte';
+import { user } from './store.js';
 
-let tokenValue;
+let userValue;
 
-const unsubscribe = token.subscribe(token => {
-  tokenValue = token;
+const unsubscribe = user.subscribe(user => {
+  userValue = user;
 });
 
 function loggedIn() {
-  if (tokenValue) {
+  if (document.cookie) {
     return true
   }
   return false;
+}
+
+function isAdmin() {
+  user.subscribe(user => {
+    userValue = user;
+  });
+  console.log(userValue)
+  return userValue.admin
 }
 
 const routes = [
@@ -27,8 +36,8 @@ const routes = [
   },
   {
     name: '/admin',
-    component: Index,
-    onlyIf: { guard: loggedIn, redirect: '/login' }
+    component: Admin,
+    onlyIf: { guard: isAdmin, redirect: '/login' }
   },
 ];
 

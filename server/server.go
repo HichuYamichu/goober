@@ -12,20 +12,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-func ensureClaim(key string) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			user := c.Get("user").(*jwt.Token)
-			claims := user.Claims.(jwt.MapClaims)
-			isAdmin := claims[key].(bool)
-			if !isAdmin {
-				return echo.ErrUnauthorized
-			}
-			return next(c)
-		}
-	}
-}
-
 // New creates new server instance
 func New() *echo.Echo {
 	e := echo.New()
@@ -38,16 +24,18 @@ func New() *echo.Echo {
 	p := prometheus.NewPrometheus("uploader", nil)
 	p.Use(e)
 
+	jwtMiddleware := middleware.JWT([]byte(viper.GetString("secret_key")))
+
 	api := e.Group("/api")
-	api.POST("/upload", uploadHandler.Upload, middleware.JWT([]byte(viper.GetString("secret_key"))))
+	api.POST("/upload", uploadHandler.Upload, jwtMiddleware)
 	api.GET("/download/:name", uploadHandler.Download)
-	api.GET("/status", uploadHandler.Status, middleware.JWT([]byte(viper.GetString("secret_key"))), ensureClaim("read"))
+	api.GET("/status", uploadHandler.Status, jwtMiddleware)
 	api.POST("/login", userHandler.Login)
 	api.POST("/register/:inviteID", userHandler.Register)
 
 	adminAPI := api.Group("/admin")
-	adminAPI.Use(middleware.JWT([]byte(viper.GetString("secret_key"))))
-	adminAPI.Use(ensureClaim("admin"))
+	adminAPI.Use(jwtMiddleware)
+	adminAPI.Use(adminMiddleware)
 	adminAPI.POST("/invite", userHandler.Invite)
 	adminAPI.DELETE("/user", userHandler.DeleteUser)
 	adminAPI.PUT("/user", userHandler.UpdateUser)
@@ -59,4 +47,16 @@ func New() *echo.Echo {
 		HTML5:   true,
 	}))
 	return e
+}
+
+func adminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		user := c.Get("user").(*jwt.Token)
+		claims := user.Claims.(jwt.MapClaims)
+		isAdmin := claims["admin"].(bool)
+		if !isAdmin {
+			return echo.ErrUnauthorized
+		}
+		return next(c)
+	}
 }

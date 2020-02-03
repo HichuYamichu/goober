@@ -40,7 +40,7 @@ func main() {
 
 	user := usersService.FindOneByUsername(suName)
 	if user == nil {
-		user = &models.User{Username: suName, Pass: suPass, Admin: true, Write: true, Read: true}
+		user = &models.User{Username: suName, Pass: suPass, Admin: true, Quota: int64(100000000)}
 		user.Pass, err = usersService.HashPassword(user.Pass)
 		if err != nil {
 			panic(fmt.Errorf("fatal error config file: %s", err))

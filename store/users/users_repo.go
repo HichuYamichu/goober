@@ -22,3 +22,8 @@ func FindOne(where *models.User) *models.User {
 func Create(user *models.User) {
 	db.Create(user)
 }
+
+func Delete(id int) {
+	user := &models.User{ID: id}
+	db.Delete(user)
+}

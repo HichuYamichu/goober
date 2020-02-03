@@ -15,6 +15,17 @@ type loginPayload struct {
 	Password string `json:"password"`
 }
 
+type safeUser struct {
+	Username string `json:"username"`
+	Quota    int64  `json:"quota"`
+	Admin    bool   `json:"admin"`
+}
+
+type loginResponce struct {
+	Token string    `json:"token"`
+	User  *safeUser `json:"user"`
+}
+
 func Login(c echo.Context) error {
 	p := &loginPayload{}
 	if err := c.Bind(p); err != nil {
@@ -37,15 +48,20 @@ func Login(c echo.Context) error {
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 	claims["username"] = user.Username
 	claims["admin"] = user.Admin
-	claims["read"] = user.Read
-	claims["write"] = user.Write
+	claims["quota"] = user.Quota
 
 	t, err := token.SignedString([]byte(viper.GetString("secret_key")))
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{
-		"token": t,
-	})
+	res := &loginResponce{
+		Token: t,
+		User: &safeUser{
+			Username: user.Username,
+			Quota:    user.Quota,
+			Admin:    user.Admin,
+		},
+	}
+	return c.JSON(http.StatusOK, res)
 }

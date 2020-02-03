@@ -1,12 +1,12 @@
 <script>
   import { onMount } from "svelte";
   import { Navigate } from "svelte-router-spa";
-  import { token } from "../store.js";
+  import { user } from "../store.js";
 
-  let tokenValue;
+  let userValue;
 
-  const unsubscribe = token.subscribe(token => {
-    tokenValue = token;
+  const unsubscribe = user.subscribe(user => {
+    userValue = user;
   });
 
   async function handleSubmit(event) {
@@ -15,7 +15,7 @@
       method: "POST",
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${tokenValue}`
+        Authorization: `Bearer ${document.cookie}`
       },
       body: formData
     });
@@ -27,7 +27,7 @@
   onMount(async () => {
     const res = await fetch("/api/status", {
       headers: {
-        Authorization: `Bearer ${tokenValue}`
+        Authorization: `Bearer ${document.cookie}`
       }
     });
     files = await res.json();
@@ -60,6 +60,10 @@
     <button type="submit">Upload</button>
   </form>
   <Navigate to="login">link to login</Navigate>
+
+  <div>
+    {userValue.admin}
+  </div>
 
   <div>
     <ul>

@@ -12,14 +12,12 @@ func Register(id string, user *models.User) error {
 	if err != nil {
 		return err
 	}
-	readPerm, err := strconv.ParseBool(res["read"])
-	writePerm, err := strconv.ParseBool(res["write"])
+	quota, err := strconv.ParseInt(res["quota"], 10, 64)
 	if err != nil {
 		return err
 	}
 	user.Admin = false
-	user.Write = writePerm
-	user.Read = readPerm
+	user.Quota = quota
 
 	Create(user)
 	return nil

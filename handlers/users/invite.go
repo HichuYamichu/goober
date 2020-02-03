@@ -6,10 +6,10 @@ import (
 )
 
 func Invite(c echo.Context) error {
-	p := &usersService.Permissions{}
-	if err := c.Bind(p); err != nil {
+	conf := &usersService.UserConfig{}
+	if err := c.Bind(c); err != nil {
 		return err
 	}
-	id := usersService.GenereateInvite(p)
+	id := usersService.GenereateInvite(conf)
 	return c.String(200, id)
 }

@@ -1,6 +1,6 @@
 <script>
   import { navigateTo } from "svelte-router-spa";
-  import { token } from "../store.js";
+  import { user } from "../store.js";
 
   async function handleSubmit(event) {
     const payload = {
@@ -16,7 +16,7 @@
       },
       body: JSON.stringify(payload)
     });
-    
+
     if (response.status !== 200) {
       const errorEl = document.getElementById("error");
       errorEl.style.color = "red";
@@ -25,7 +25,13 @@
     }
 
     const data = await response.json();
-    token.update(() => data.token);
+    document.cookie = data.token;
+    user.update(user => {
+      user.username = data.user.username;
+      user.quota = data.user.quota;
+      user.admin = data.user.admin;
+    });
+    console.log(data.user);
     navigateTo("/");
   }
 </script>
