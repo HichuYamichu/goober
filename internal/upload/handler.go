@@ -1,22 +1,38 @@
-package handlers
+package upload
 
 import (
 	"fmt"
 	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
-	uploadService "github.com/hichuyamichu-me/uploader/services/upload"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
 )
 
-type uploadResult struct {
-	URL     string `json:"url"`
-	Name    string `json:"name"`
-	Success bool   `json:"success"`
+type uploadHandler struct {
+	uplServ *uploadService
 }
 
-func Upload(c echo.Context) error {
+func NewHandler(uplServ *uploadService) *uploadHandler {
+	return &uploadHandler{uplServ: uplServ}
+}
+
+func (h *uploadHandler) Download(c echo.Context) error {
+	fName := c.Param("name")
+	uploadDir := viper.GetString("upload_dir")
+	filePath := fmt.Sprintf("%s/%s", uploadDir, fName)
+	return c.File(filePath)
+}
+
+func (h *uploadHandler) Status(c echo.Context) error {
+	data, err := h.uplServ.GenerateStatiscics()
+	if err != nil {
+		return err
+	}
+	return c.JSON(200, data)
+}
+
+func (h *uploadHandler) Upload(c echo.Context) error {
 	form, err := c.MultipartForm()
 	if err != nil {
 		return err
@@ -45,7 +61,7 @@ func Upload(c echo.Context) error {
 	domain := viper.GetString("domain")
 	res := make([]*uploadResult, len(files))
 	for i, file := range files {
-		uploadService.Save(file)
+		h.uplServ.Save(file)
 		r := &uploadResult{
 			URL:     fmt.Sprintf("https://%s/api/download/%s", domain, file.Filename),
 			Name:    file.Filename,

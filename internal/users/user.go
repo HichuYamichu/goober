@@ -1,4 +1,4 @@
-package models
+package users
 
 type User struct {
 	ID       int `gorm:"type:serial;"`

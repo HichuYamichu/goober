@@ -1,0 +1,14 @@
+{
+  "version": 3,
+  "file": "bundle.css",
+  "sources": [
+    "..\\..\\admin.svelte",
+    "..\\..\\index.svelte"
+  ],
+  "sourcesContent": [
+    "<script>\n  admin\n</script>\n\n<style>\n  main {\n    text-align: center;\n    padding: 1em;\n    max-width: 240px;\n    margin: 0 auto;\n  }\n\n  @media (min-width: 640px) {\n    main {\n      max-width: none;\n    }\n  }\n</style>\n\n<main>\n \n</main>\n",
+    "<script>\n  import { onMount } from \"svelte\";\n  import { Navigate } from \"svelte-router-spa\";\n  import { user } from \"../store.js\";\n\n  let userValue;\n\n  const unsubscribe = user.subscribe(user => {\n    userValue = user;\n  });\n\n  async function handleSubmit(event) {\n    const formData = new FormData(event.target);\n    const response = await fetch(\"/api/upload\", {\n      method: \"POST\",\n      headers: {\n        Accept: \"application/json\",\n        Authorization: `Bearer ${document.cookie}`\n      },\n      body: formData\n    });\n    const data = await response.json();\n  }\n\n  let files = [];\n\n  onMount(async () => {\n    const res = await fetch(\"/api/status\", {\n      headers: {\n        Authorization: `Bearer ${document.cookie}`\n      }\n    });\n    files = await res.json();\n  });\n</script>\n\n<style>\n  main {\n    text-align: center;\n    padding: 1em;\n    max-width: 240px;\n    margin: 0 auto;\n  }\n\n  @media (min-width: 640px) {\n    main {\n      max-width: none;\n    }\n  }\n</style>\n\n<main>\n  <form\n    on:submit|preventDefault={handleSubmit}\n    class=\"uploadForm\"\n    action=\"/upload\"\n    method=\"POST\"\n    enctype=\"multipart/form-data\">\n    <input type=\"file\" name=\"files\" multiple />\n    <button type=\"submit\">Upload</button>\n  </form>\n  <Navigate to=\"login\">link to login</Navigate>\n\n  <div>\n    {userValue.admin}\n  </div>\n\n  <div>\n    <ul>\n      {#each files as file}\n        <li>{file}</li>\n      {:else}\n        <p>loading...</p>\n      {/each}\n    </ul>\n  </div>\n</main>\n"
+  ],
+  "names": [],
+  "mappings": "AAKE,IAAI,eAAC,CAAC,AACJ,UAAU,CAAE,MAAM,CAClB,OAAO,CAAE,GAAG,CACZ,SAAS,CAAE,KAAK,CAChB,MAAM,CAAE,CAAC,CAAC,IAAI,AAChB,CAAC,AAED,MAAM,AAAC,YAAY,KAAK,CAAC,AAAC,CAAC,AACzB,IAAI,eAAC,CAAC,AACJ,SAAS,CAAE,IAAI,AACjB,CAAC,AACH,CAAC;ACqBD,IAAI,eAAC,CAAC,AACJ,UAAU,CAAE,MAAM,CAClB,OAAO,CAAE,GAAG,CACZ,SAAS,CAAE,KAAK,CAChB,MAAM,CAAE,CAAC,CAAC,IAAI,AAChB,CAAC,AAED,MAAM,AAAC,YAAY,KAAK,CAAC,AAAC,CAAC,AACzB,IAAI,eAAC,CAAC,AACJ,SAAS,CAAE,IAAI,AACjB,CAAC,AACH,CAAC"
+}

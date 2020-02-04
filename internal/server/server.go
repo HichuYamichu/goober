@@ -1,19 +1,23 @@
 package server
 
 import (
+	"fmt"
+
 	"github.com/dgrijalva/jwt-go"
+	"github.com/go-redis/redis/v7"
+	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
 
-	uploadHandler "github.com/hichuyamichu-me/uploader/handlers/upload"
-	userHandler "github.com/hichuyamichu-me/uploader/handlers/users"
+	"github.com/hichuyamichu-me/uploader/internal/upload"
+	"github.com/hichuyamichu-me/uploader/internal/users"
 	"github.com/spf13/viper"
 )
 
 // New creates new server instance
-func New() *echo.Echo {
+func New(db *gorm.DB, cache *redis.Client) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
 	e.Logger.SetLevel(log.INFO)
@@ -26,23 +30,30 @@ func New() *echo.Echo {
 
 	jwtMiddleware := middleware.JWT([]byte(viper.GetString("secret_key")))
 
+	usersRepo := users.NewRepository(db)
+	usersService := users.NewService(usersRepo, cache)
+	usersHandler := users.NewHandler(usersService)
+
+	uploadService := upload.NewService()
+	uploadHandler := upload.NewHandler(uploadService)
+
 	api := e.Group("/api")
-	api.POST("/upload", uploadHandler.Upload, jwtMiddleware)
 	api.GET("/download/:name", uploadHandler.Download)
 	api.GET("/status", uploadHandler.Status, jwtMiddleware)
-	api.POST("/login", userHandler.Login)
-	api.POST("/register/:inviteID", userHandler.Register)
+	api.POST("/login", usersHandler.Login)
+	api.POST("/register/:inviteID", usersHandler.Register)
+	api.POST("/upload", uploadHandler.Upload, jwtMiddleware)
 
 	adminAPI := api.Group("/admin")
 	adminAPI.Use(jwtMiddleware)
 	adminAPI.Use(adminMiddleware)
-	adminAPI.POST("/invite", userHandler.Invite)
-	adminAPI.DELETE("/user", userHandler.DeleteUser)
-	adminAPI.PUT("/user", userHandler.UpdateUser)
+	adminAPI.POST("/invite", usersHandler.Invite)
+	adminAPI.DELETE("/user", usersHandler.DeleteUser)
+	adminAPI.PUT("/user", usersHandler.UpdateUser)
 
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: middleware.DefaultSkipper,
-		Root:    "client/public",
+		Root:    "web/public",
 		Index:   "index.html",
 		HTML5:   true,
 	}))
@@ -53,6 +64,7 @@ func adminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		user := c.Get("user").(*jwt.Token)
 		claims := user.Claims.(jwt.MapClaims)
+		fmt.Println(claims)
 		isAdmin := claims["admin"].(bool)
 		if !isAdmin {
 			return echo.ErrUnauthorized
