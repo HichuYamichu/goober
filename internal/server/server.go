@@ -1,8 +1,6 @@
 package server
 
 import (
-	"fmt"
-
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-redis/redis/v7"
 	"github.com/jinzhu/gorm"
@@ -53,9 +51,10 @@ func New(db *gorm.DB, cache *redis.Client) *echo.Echo {
 
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: middleware.DefaultSkipper,
-		Root:    "web/public",
+		Root:    "web/public/",
 		Index:   "index.html",
 		HTML5:   true,
+		Browse:  false,
 	}))
 	return e
 }
@@ -64,7 +63,6 @@ func adminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		user := c.Get("user").(*jwt.Token)
 		claims := user.Claims.(jwt.MapClaims)
-		fmt.Println(claims)
 		isAdmin := claims["admin"].(bool)
 		if !isAdmin {
 			return echo.ErrUnauthorized

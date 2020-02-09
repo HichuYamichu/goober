@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"os"
+	"time"
 
 	"github.com/spf13/viper"
 )
@@ -37,18 +38,30 @@ func (s *uploadService) Save(file *multipart.FileHeader) error {
 	return nil
 }
 
-func (s *uploadService) GenerateStatiscics() ([]string, error) {
+type fileData struct {
+	Name      string    `json:"name"`
+	Size      int64     `json:"size"`
+	CreatedAt time.Time `json:"createdAt"`
+	Owner     string    `json:"owner"`
+}
+
+func (s *uploadService) GenerateStatiscics() ([]*fileData, error) {
 	uploadDir := viper.GetString("upload_dir")
 	files, err := ioutil.ReadDir(uploadDir)
 	if err != nil {
 		return nil, err
 	}
 
-	fileNames := make([]string, len(files))
-	for _, file := range files {
-		fName := file.Name()
-		fileNames = append(fileNames, fName)
+	res := make([]*fileData, len(files))
+	for i, file := range files {
+		fileData := &fileData{
+			Name:      file.Name(),
+			Size:      file.Size(),
+			CreatedAt: file.ModTime(),
+			Owner:     "",
+		}
+		res[i] = fileData
 	}
 
-	return fileNames, nil
+	return res, nil
 }

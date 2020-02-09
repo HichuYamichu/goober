@@ -9,14 +9,19 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^11.0.0",
     "@rollup/plugin-node-resolve": "^7.0.0",
+    "bulma": "^0.8.0",
     "rollup": "^1.20.0",
     "rollup-plugin-livereload": "^1.0.0",
+    "rollup-plugin-postcss": "^2.0.6",
     "rollup-plugin-svelte": "^5.0.3",
     "rollup-plugin-terser": "^5.1.2",
-    "svelte": "^3.0.0"
+    "sass": "^1.25.0",
+    "svelte": "^3.0.0",
+    "svelte-persistent-store": "^0.1.1",
+    "svelte-preprocess": "^3.4.0",
+    "svelte-router-spa": "^5.3.3"
   },
   "dependencies": {
-    "sirv-cli": "^0.4.4",
-    "svelte-router-spa": "^5.3.3"
+    "sirv-cli": "^0.4.4"
   }
 }

@@ -1,77 +1,42 @@
 <script>
-  import { onMount } from "svelte";
   import { Navigate } from "svelte-router-spa";
-  import { user } from "../store.js";
+  import Tabs from "../components/tabs.svelte";
+  import { api } from "../api.js";
 
-  let userValue;
-
-  const unsubscribe = user.subscribe(user => {
-    userValue = user;
-  });
 
   async function handleSubmit(event) {
     const formData = new FormData(event.target);
-    const response = await fetch("/api/upload", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${document.cookie}`
-      },
-      body: formData
-    });
+    const response = await api.post("/api/upload", formData);
     const data = await response.json();
   }
-
-  let files = [];
-
-  onMount(async () => {
-    const res = await fetch("/api/status", {
-      headers: {
-        Authorization: `Bearer ${document.cookie}`
-      }
-    });
-    files = await res.json();
-  });
 </script>
 
 <style>
-  main {
-    text-align: center;
-    padding: 1em;
-    max-width: 240px;
-    margin: 0 auto;
-  }
-
-  @media (min-width: 640px) {
-    main {
-      max-width: none;
-    }
+  .upload-box {
+    padding-left: 10em !important;
+    padding-right: 10em !important;
   }
 </style>
 
 <main>
-  <form
-    on:submit|preventDefault={handleSubmit}
-    class="uploadForm"
-    action="/upload"
-    method="POST"
-    enctype="multipart/form-data">
-    <input type="file" name="files" multiple />
-    <button type="submit">Upload</button>
-  </form>
-  <Navigate to="login">link to login</Navigate>
-
-  <div>
-    {userValue.admin}
-  </div>
-
-  <div>
-    <ul>
-      {#each files as file}
-        <li>{file}</li>
-      {:else}
-        <p>loading...</p>
-      {/each}
-    </ul>
-  </div>
+  <section class="section">
+    <div class="container has-text-centered">
+      <div class="file is-medium is-primary is-boxed is-centered">
+        <label class="file-label">
+          <input class="file-input" type="file" name="files" multiple />
+          <span class="file-cta upload-box">
+            <span class="file-icon">
+              <i class="fas fa-upload" />
+            </span>
+            <span class="file-label">Upload</span>
+          </span>
+        </label>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <Tabs />
+    </div>
+  </section>
 </main>

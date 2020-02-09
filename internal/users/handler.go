@@ -52,7 +52,7 @@ func (h userHandler) Login(c echo.Context) error {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
-	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+	claims["exp"] = time.Now().Add(time.Hour).Unix()
 	claims["username"] = user.Username
 	claims["admin"] = user.Admin
 	claims["quota"] = user.Quota
