@@ -1,6 +1,5 @@
 import Index from './views/index.svelte';
 import Login from './views/login.svelte';
-import MainLayout from './MainLayout.svelte';
 
 function loggedIn() {
   if (document.cookie) {
@@ -13,13 +12,12 @@ const routes = [
   {
     name: '/',
     component: Index,
-    onlyIf: { guard: loggedIn, redirect: '/auth' }
+    onlyIf: { guard: loggedIn, redirect: '/login' }
   },
   {
-    name: 'auth/:inviteID',
-    component: Login, 
-    layout: MainLayout
-  },
+    name: 'login',
+    component: Login
+  }
 ];
 
 export { routes };

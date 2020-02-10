@@ -18,7 +18,7 @@ var migrateCmd = &cobra.Command{
 		size := bits / 8
 		key := make([]byte, size)
 		if _, err := rand.Read(key); err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		viper.Set("secret_key", string(key))
 		viper.WriteConfig()
@@ -27,14 +27,10 @@ var migrateCmd = &cobra.Command{
 		db.DropTableIfExists(&users.User{})
 		db.AutoMigrate(&users.User{})
 
-		cache := connectCache()
 		usersRepo := users.NewRepository(db)
-		usersService := users.NewService(usersRepo, cache)
+		usersService := users.NewService(usersRepo)
 
-		suName := viper.GetString("super_user_name")
-		suPass := viper.GetString("super_user_pass")
-
-		user := &users.User{Username: suName, Pass: suPass, Admin: true, Quota: int64(100000000)}
+		user := &users.User{Username: "root", Pass: "root", Admin: true, Quota: int64(100000000)}
 		err := usersService.CreateUser(user)
 		if err != nil {
 			log.Fatal(err)

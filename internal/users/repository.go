@@ -1,31 +1,54 @@
 package users
 
 import (
+	"errors"
+
 	"github.com/jinzhu/gorm"
+	"github.com/labstack/echo/v4"
 )
 
-type usersRepository struct {
+// Repository performs CRUD on users table
+type Repository struct {
 	db *gorm.DB
 }
 
-func NewRepository(db *gorm.DB) *usersRepository {
-	r := &usersRepository{db: db}
+// NewRepository creates new Repository
+func NewRepository(db *gorm.DB) *Repository {
+	r := &Repository{db: db}
 	return r
 }
 
-func (r usersRepository) FindOne(where *User) *User {
+// FindOne finds one user
+func (r Repository) FindOne(where *User) (*User, error) {
 	user := &User{}
-	if err := r.db.Where(where).First(&user).Error; err != nil {
-		return nil
+	if r.db.Where(where).First(&user).RecordNotFound() {
+		return nil, errors.New("user not found")
 	}
-	return user
+	return user, nil
 }
 
-func (r usersRepository) Create(user *User) {
-	r.db.Create(user)
+// Create saves a user in DB
+func (r Repository) Create(user *User) error {
+	if err := r.db.Create(user).Error; err != nil {
+		return echo.ErrInternalServerError
+	}
+	return nil
 }
 
-func (r usersRepository) Delete(id int) {
+// Delete deletes a user
+func (r Repository) Delete(id int) error {
 	user := &User{ID: id}
-	r.db.Delete(user)
+	if err := r.db.Delete(user).Error; err != nil {
+		return echo.ErrInternalServerError
+	}
+	return nil
+}
+
+// Update updates a user
+func (r Repository) Update(where *User, update *User) error {
+	user := &User{}
+	if err := r.db.Model(user).Where(where).Update(update).Error; err != nil {
+		return echo.ErrInternalServerError
+	}
+	return nil
 }

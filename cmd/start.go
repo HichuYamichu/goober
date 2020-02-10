@@ -18,8 +18,7 @@ var startCmd = &cobra.Command{
 	Short: "starts uploader's http server",
 	Run: func(cmd *cobra.Command, args []string) {
 		db := connectDB()
-		cache := connectCache()
-		srv := server.New(db, cache)
+		srv := server.New(db)
 
 		go func() {
 			done := make(chan os.Signal, 1)

@@ -9,59 +9,62 @@ import (
 	"github.com/spf13/viper"
 )
 
-type uploadHandler struct {
-	uplServ *uploadService
+// Handler handles all upload domain actions
+type Handler struct {
+	uplServ *Service
 }
 
-func NewHandler(uplServ *uploadService) *uploadHandler {
-	return &uploadHandler{uplServ: uplServ}
+// NewHandler creates new Handler
+func NewHandler(uplServ *Service) *Handler {
+	return &Handler{uplServ: uplServ}
 }
 
-func (h *uploadHandler) Download(c echo.Context) error {
+// Download handles file downloading
+func (h *Handler) Download(c echo.Context) error {
 	fName := c.Param("name")
 	uploadDir := viper.GetString("upload_dir")
 	filePath := fmt.Sprintf("%s/%s", uploadDir, fName)
 	return c.File(filePath)
 }
 
-func (h *uploadHandler) Status(c echo.Context) error {
-	data, err := h.uplServ.GenerateStatiscics()
+// Status handles status report
+func (h *Handler) Status(c echo.Context) error {
+	data, err := h.uplServ.generateStatiscics()
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 	return c.JSON(200, data)
 }
 
-func (h *uploadHandler) Upload(c echo.Context) error {
+// Upload handles file upload
+func (h *Handler) Upload(c echo.Context) error {
+	type uploadResult struct {
+		URL     string `json:"url"`
+		Name    string `json:"name"`
+		Success bool   `json:"success"`
+	}
+
 	form, err := c.MultipartForm()
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 	files := form.File["files"]
 
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	sizeLimit := claims["quota"].(float64)
-	if sizeLimit == 0 {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"error": "missing upload permission",
-		})
-	}
-
-	size := int64(0)
+	sizeTotal := int64(0)
 	for _, file := range files {
-		size += file.Size
-		if size > int64(sizeLimit) {
-			return c.JSON(http.StatusBadRequest, map[string]interface{}{
-				"error": "payload too large",
-			})
+		sizeTotal += file.Size
+		if sizeTotal > int64(sizeLimit) {
+			return echo.NewHTTPError(http.StatusRequestEntityTooLarge)
 		}
 	}
 
 	domain := viper.GetString("domain")
 	res := make([]*uploadResult, len(files))
 	for i, file := range files {
-		h.uplServ.Save(file)
+		h.uplServ.save(file)
 		r := &uploadResult{
 			URL:     fmt.Sprintf("https://%s/api/download/%s", domain, file.Filename),
 			Name:    file.Filename,

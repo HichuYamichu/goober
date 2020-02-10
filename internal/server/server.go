@@ -2,7 +2,6 @@ package server
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"github.com/go-redis/redis/v7"
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
@@ -15,7 +14,7 @@ import (
 )
 
 // New creates new server instance
-func New(db *gorm.DB, cache *redis.Client) *echo.Echo {
+func New(db *gorm.DB) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
 	e.Logger.SetLevel(log.INFO)
@@ -29,7 +28,7 @@ func New(db *gorm.DB, cache *redis.Client) *echo.Echo {
 	jwtMiddleware := middleware.JWT([]byte(viper.GetString("secret_key")))
 
 	usersRepo := users.NewRepository(db)
-	usersService := users.NewService(usersRepo, cache)
+	usersService := users.NewService(usersRepo)
 	usersHandler := users.NewHandler(usersService)
 
 	uploadService := upload.NewService()
@@ -39,15 +38,15 @@ func New(db *gorm.DB, cache *redis.Client) *echo.Echo {
 	api.GET("/download/:name", uploadHandler.Download)
 	api.GET("/status", uploadHandler.Status, jwtMiddleware)
 	api.POST("/login", usersHandler.Login)
-	api.POST("/register/:inviteID", usersHandler.Register)
 	api.POST("/upload", uploadHandler.Upload, jwtMiddleware)
+	api.POST("/password/change", usersHandler.ChangePass, jwtMiddleware)
 
 	adminAPI := api.Group("/admin")
 	adminAPI.Use(jwtMiddleware)
 	adminAPI.Use(adminMiddleware)
-	adminAPI.POST("/invite", usersHandler.Invite)
-	adminAPI.DELETE("/user", usersHandler.DeleteUser)
+	adminAPI.POST("/user", usersHandler.CreateUser)
 	adminAPI.PUT("/user", usersHandler.UpdateUser)
+	adminAPI.DELETE("/user", usersHandler.DeleteUser)
 
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: middleware.DefaultSkipper,

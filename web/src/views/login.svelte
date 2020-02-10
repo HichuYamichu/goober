@@ -2,16 +2,6 @@
   import { navigateTo } from "svelte-router-spa";
   import { user } from "../store.js";
   import { api } from "../api.js";
-  export let currentRoute;
-
-  let action = "Login";
-  let endpoint = "/api/login";
-  let message = "Please login to proceed";
-  if (currentRoute.namedParams.inviteID) {
-    action = "Register";
-    endpoint = "/api/register";
-    message = "This invite link will be used up once you register";
-  }
 
   async function handleSubmit(event) {
     const payload = {
@@ -19,19 +9,17 @@
       password: event.target.password.value
     };
 
-    if (currentRoute.namedParams.inviteID) {
-      payload.invite = currentRoute.namedParams.inviteID;
-    }
-
-    const response = await api.post(endpoint, JSON.stringify(payload));
+    const response = await api.post("/api/login", JSON.stringify(payload));
+    const data = await response.json();
+    
     if (response.status !== 200) {
       const errorEl = document.getElementById("error");
+      console.log(data)
       errorEl.style.color = "red";
-      errorEl.innerHTML = "Failed to authenticate";
+      errorEl.innerHTML = data.message;
       return;
     }
 
-    const data = await response.json();
     document.cookie = data.token;
     user.set(data.user);
     navigateTo("/");
@@ -43,9 +31,9 @@
     <div class="hero-body">
       <div class="container has-text-centered">
         <div class="column is-4 is-offset-4">
-          <h3 class="title has-text-black">{action}</h3>
+          <h3 class="title has-text-black">Login</h3>
           <hr class="login-hr has-background-black" />
-          <p class="subtitle has-text-black">{ message }</p>
+          <p class="subtitle has-text-black">Please login to proceed</p>
           <div class="box">
             <form on:submit|preventDefault={handleSubmit}>
               <div class="field">
@@ -69,7 +57,7 @@
               <input
                 type="submit"
                 class="button is-block is-link is-large is-fullwidth"
-                value={action} />
+                value="Login" />
               <p id="error" />
             </form>
           </div>

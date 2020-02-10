@@ -11,13 +11,16 @@ import (
 	"github.com/spf13/viper"
 )
 
-type uploadService struct{}
+// Service performs operations specyfic to upload domain
+type Service struct{}
 
-func NewService() *uploadService {
-	return &uploadService{}
+// NewService creates new upload service
+func NewService() *Service {
+	return &Service{}
 }
 
-func (s *uploadService) Save(file *multipart.FileHeader) error {
+// Save saves file to disk
+func (s *Service) save(file *multipart.FileHeader) error {
 	src, err := file.Open()
 	if err != nil {
 		return err
@@ -45,7 +48,8 @@ type fileData struct {
 	Owner     string    `json:"owner"`
 }
 
-func (s *uploadService) GenerateStatiscics() ([]*fileData, error) {
+// GenerateStatiscics generates statistic data
+func (s *Service) generateStatiscics() ([]*fileData, error) {
 	uploadDir := viper.GetString("upload_dir")
 	files, err := ioutil.ReadDir(uploadDir)
 	if err != nil {

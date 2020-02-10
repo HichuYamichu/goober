@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 
-	"github.com/go-redis/redis/v7"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/spf13/cobra"
@@ -27,7 +27,7 @@ func init() {
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("fatal error config file: %s", err))
+		log.Fatalf("fatal error config file: %s", err)
 	}
 
 	rootCmd.AddCommand(startCmd)
@@ -43,17 +43,8 @@ func connectDB() *gorm.DB {
 	connStr := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", dbHost, dbPort, dbUser, dbName, dbPass)
 	db, err := gorm.Open("postgres", connStr)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	db.LogMode(true)
 	return db
-}
-
-func connectCache() *redis.Client {
-	c := redis.NewClient(&redis.Options{
-		Addr:     viper.GetString("cache_addr"),
-		Password: viper.GetString("cache_pass"),
-		DB:       viper.GetInt("cache_db"),
-	})
-	return c
 }

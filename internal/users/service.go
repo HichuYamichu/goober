@@ -1,95 +1,78 @@
 package users
 
 import (
-	"strconv"
-	"time"
+	"errors"
 
-	"github.com/bwmarrin/snowflake"
-	"github.com/go-redis/redis/v7"
-	"github.com/labstack/echo"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type userService struct {
-	usrRepo *usersRepository
-	cache   *redis.Client
-	node    *snowflake.Node
+// Service performs operations specyfic to user domain
+type Service struct {
+	usrRepo *Repository
 }
 
-func NewService(usrRepo *usersRepository, cache *redis.Client) *userService {
-	node, _ := snowflake.NewNode(0)
-	s := &userService{usrRepo: usrRepo, cache: cache, node: node}
+// NewService creates new user service
+func NewService(usrRepo *Repository) *Service {
+	s := &Service{usrRepo: usrRepo}
 	return s
 }
 
-func (s userService) CreateUser(user *User) error {
+// CreateUser creates a user
+func (s Service) CreateUser(user *User) error {
 	hash, err := s.hashPassword(user.Pass)
 	if err != nil {
 		return err
 	}
 	user.Pass = hash
-	s.usrRepo.Create(user)
-	return nil
+	return s.usrRepo.Create(user)
 }
 
-func (s userService) CreateUserFromInvite(id string, user *User) error {
-	res, err := s.cache.HGetAll(id).Result()
+// DeleteUser deletes a user
+func (s Service) DeleteUser(id int) error {
+	return s.usrRepo.Delete(id)
+}
+
+// ChangePassword changes user's password
+func (s Service) ChangePassword(userID int, pass string) error {
+	where := &User{ID: userID}
+	hash, err := s.hashPassword(pass)
 	if err != nil {
 		return err
 	}
-	quota, err := strconv.ParseInt(res["quota"], 10, 64)
+	fields := &User{Pass: hash}
+	return s.usrRepo.Update(where, fields)
+}
+
+// VerifyCredentials verifies user credentials
+func (s Service) VerifyCredentials(username, password string) (*User, error) {
+	user, err := s.findOneByUsername(username)
 	if err != nil {
-		return err
-	}
-	hash, err := s.hashPassword(user.Pass)
-	if err != nil {
-		return err
-	}
-	user.Pass = hash
-	user.Admin = false
-	user.Quota = quota
-
-	s.usrRepo.Create(user)
-	return nil
-}
-
-func (s userService) DeleteUser(id int) {
-	s.usrRepo.Delete(id)
-}
-
-func (s userService) GenereateInvite(p *UserConfig) string {
-	id := s.node.Generate().String()
-	s.cache.HMSet(id, "quota", p.Quota)
-	s.cache.Expire(id, time.Minute*30)
-	return id
-}
-
-func (s userService) VerifyCredentials(username, password string) (*User, error) {
-	user := s.findOneByUsername(username)
-	if user == nil {
-		return nil, echo.ErrUnauthorized
+		return nil, err
 	}
 
 	match := s.checkPasswordHash(password, user.Pass)
 	if !match {
-		return nil, echo.ErrUnauthorized
+		return nil, errors.New("wrong password")
 	}
 
 	return user, nil
 }
 
-func (s userService) findOneByUsername(username string) *User {
+func (s Service) findOneByUsername(username string) (*User, error) {
 	user := &User{Username: username}
-	user = s.usrRepo.FindOne(user)
-	return user
+	user, err := s.usrRepo.FindOne(user)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
-func (s userService) hashPassword(password string) (string, error) {
+func (s Service) hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
 }
 
-func (s userService) checkPasswordHash(password, hash string) bool {
+func (s Service) checkPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
