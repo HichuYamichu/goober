@@ -2425,11 +2425,6 @@ supports-color@^6.1.0:
   dependencies:
     has-flag "^3.0.0"
 
-svelte-persistent-store@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/svelte-persistent-store/-/svelte-persistent-store-0.1.1.tgz#1957afa1214cf3be8c42d2a3ad94cf64fce4c785"
-  integrity sha512-ki9NnSWZVUFqtVa8wqdotQOoWNjPGvs9jycVPXW28SPpa2zf551aUzlSycrGcfN1wyCcuTDdX/FfJZurs+Rwig==
-
 svelte-preprocess@^3.4.0:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/svelte-preprocess/-/svelte-preprocess-3.4.0.tgz#bd21f2a26113b53a7d1ef5f1939a2d5b2e74a4af"
@@ -2439,13 +2434,6 @@ svelte-preprocess@^3.4.0:
     "@types/sass" "^1.16.0"
     detect-indent "^6.0.0"
     strip-indent "^3.0.0"
-
-svelte-router-spa@^5.3.3:
-  version "5.3.3"
-  resolved "https://registry.yarnpkg.com/svelte-router-spa/-/svelte-router-spa-5.3.3.tgz#64a6c214932e281f990433165d87eac8b0c97ab3"
-  integrity sha512-NgbTXcKWM3AncO38Dchs5taNHrd88LsEtD4NLSyG/pwzNwzabox86lGMvYxq0EOqOcgZvgHcb7cBd0GK/iGtpQ==
-  dependencies:
-    url-params-parser "^1.0.2"
 
 svelte@^3.0.0:
   version "3.18.1"
@@ -2564,11 +2552,6 @@ urix@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/urix/-/urix-0.1.0.tgz#da937f7a62e21fec1fd18d49b35c2935067a6c72"
   integrity sha1-2pN/emLiH+wf0Y1Js1wpNQZ6bHI=
-
-url-params-parser@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/url-params-parser/-/url-params-parser-1.0.2.tgz#2076afda890c804c692152d6b42e07f4ba1049fc"
-  integrity sha512-0jXbXQBZlyQxIF/kwZ4nu5sOU+jNioXRXlxLgyT+XxG9mQ4nLmxV8zBaR/66bmH0zDIO9cWazK33MTHBIGQwMg==
 
 use@^3.1.0:
   version "3.1.1"

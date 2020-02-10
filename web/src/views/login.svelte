@@ -1,7 +1,6 @@
 <script>
-  import { navigateTo } from "svelte-router-spa";
-  import { user } from "../store.js";
-  import { api } from "../api.js";
+  import { user } from "../store";
+  import { api } from "../api";
 
   async function handleSubmit(event) {
     const payload = {
@@ -11,10 +10,10 @@
 
     const response = await api.post("/api/login", JSON.stringify(payload));
     const data = await response.json();
-    
+
     if (response.status !== 200) {
       const errorEl = document.getElementById("error");
-      console.log(data)
+      console.log(data);
       errorEl.style.color = "red";
       errorEl.innerHTML = data.message;
       return;
@@ -22,7 +21,6 @@
 
     document.cookie = data.token;
     user.set(data.user);
-    navigateTo("/");
   }
 </script>
 

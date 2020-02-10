@@ -1,8 +1,6 @@
 <script>
-  import { Navigate } from "svelte-router-spa";
   import Tabs from "../components/tabs.svelte";
-  import { api } from "../api.js";
-
+  import { api } from "../api";
 
   async function handleSubmit(event) {
     const formData = new FormData(event.target);
@@ -19,6 +17,7 @@
 </style>
 
 <main>
+
   <section class="section">
     <div class="container has-text-centered">
       <div class="file is-medium is-primary is-boxed is-centered">

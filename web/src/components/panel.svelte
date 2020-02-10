@@ -1,7 +1,7 @@
 <script>
-  import PasswordChangeForm from "./passwordChangeForm.svelte";
-  import GenerateInviteForm from "./generateInviteForm.svelte";
-  import { user } from "../store.js";
+  import PasswordChangeForm from "./forms/passwordChangeForm.svelte";
+  import GenerateInviteForm from "./forms/createUserForm.svelte";
+  import { user } from "../store";
 
   let userValue;
 

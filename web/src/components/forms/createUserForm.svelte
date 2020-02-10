@@ -1,5 +1,5 @@
 <script>
-  import { api } from "../api.js";
+  import { api } from "../../api";
 
   async function handleSubmit() {
     const payload = {

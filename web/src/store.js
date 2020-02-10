@@ -6,14 +6,14 @@ const createWritableStore = (key, startValue) => {
 	return {
     subscribe,
     set,
-    useLocalStorage: () => {
-      const json = localStorage.getItem(key);
+    useSessionStorage: () => {
+      const json = sessionStorage.getItem(key);
       if (json) {
         set(JSON.parse(json));
       }
       
       subscribe(current => {
-        localStorage.setItem(key, JSON.stringify(current));
+        sessionStorage.setItem(key, JSON.stringify(current));
       });
     }
   };
@@ -24,7 +24,3 @@ export const user = createWritableStore('count', {
   quota: 0,
   admin: false
 });
-
-// let user = writable();
-
-// export { user };
