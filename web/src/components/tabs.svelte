@@ -3,6 +3,7 @@
   import Panel from "./panel.svelte";
 
   let activeTab = 0;
+  export let files = [];
 
   function handleClick(idx) {
     const tabs = document.querySelectorAll("li");
@@ -25,7 +26,7 @@
   </div>
   <div>
     {#if activeTab == 0}
-      <Table />
+      <Table {files} on:remove />
     {:else if activeTab == 1}
       <Panel />
     {/if}

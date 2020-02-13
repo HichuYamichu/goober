@@ -1,12 +1,21 @@
 <script>
+  import { createEventDispatcher } from "svelte";
   import { onMount } from "svelte";
+  import { user } from "../store";
   import { api } from "../api";
 
-  let files = [];
+  const dispatch = createEventDispatcher();
 
-  onMount(async () => {
-    const response = await api.get("/api/status");
-    files = await response.json();
+  function handleDelete(fileName) {
+    dispatch("remove", { fileName });
+  }
+
+  export let files = [];
+
+  let userValue;
+
+  const unsubscribe = user.subscribe(user => {
+    userValue = user;
   });
 </script>
 
@@ -18,7 +27,7 @@
         <th>Filename</th>
         <th>Size</th>
         <th>Date added</th>
-        <th>Uploader</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tfoot>
@@ -27,7 +36,7 @@
         <th>Filename</th>
         <th>Size</th>
         <th>Date added</th>
-        <th>Uploader</th>
+        <th>Action</th>
       </tr>
     </tfoot>
     <tbody>
@@ -35,9 +44,25 @@
         <tr>
           <th>{i + 1}</th>
           <td>{file.name}</td>
-          <td>{file.size}</td>
-          <td>{file.createdAt}</td>
-          <td>{file.owner}</td>
+          <td>{(file.size * 10e-6).toFixed(3)}MB</td>
+          <td>{new Date(file.createdAt).toLocaleDateString('pl-PL')}</td>
+          <td>
+            <button class="button is-small">
+              <a class="is-small" download href="/api/download/{file.name}">
+                <span class="icon is-small ">
+                  <i class="fas fa-download" />
+                </span>
+              </a>
+            </button>
+            <button
+              class="button is-small is-danger is-inverted"
+              disabled={!userValue.admin}
+              on:click={() => handleDelete(file.name)}>
+              <span class="icon is-small ">
+                <i class="fas fa-times" />
+              </span>
+            </button>
+          </td>
         </tr>
       {:else}
         <p>loading...</p>

@@ -47,6 +47,7 @@ func New(db *gorm.DB) *echo.Echo {
 	adminAPI.POST("/user", usersHandler.CreateUser)
 	adminAPI.PUT("/user", usersHandler.UpdateUser)
 	adminAPI.DELETE("/user", usersHandler.DeleteUser)
+	adminAPI.DELETE("/delete_file/:name", uploadHandler.Delete, jwtMiddleware)
 
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: middleware.DefaultSkipper,

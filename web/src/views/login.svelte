@@ -8,19 +8,22 @@
       password: event.target.password.value
     };
 
-    const response = await api.post("/api/login", JSON.stringify(payload));
-    const data = await response.json();
+    try {
+      const response = await api.post("/api/login", JSON.stringify(payload));
+      const data = await response.json();
 
-    if (response.status !== 200) {
-      const errorEl = document.getElementById("error");
-      console.log(data);
-      errorEl.style.color = "red";
-      errorEl.innerHTML = data.message;
-      return;
+      if (response.status !== 200) {
+        const errorEl = document.getElementById("error");
+        console.log(data);
+        errorEl.style.color = "red";
+        errorEl.innerHTML = data.message;
+        return;
+      }
+      document.cookie = data.token;
+      user.set(data.user);
+    } catch (e) {
+      console.error(e);
     }
-
-    document.cookie = data.token;
-    user.set(data.user);
   }
 </script>
 

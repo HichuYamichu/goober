@@ -17,6 +17,10 @@
     tabs[idx].classList.add("is-active");
     activeTab = idx;
   }
+
+  function handleLogout() {
+    user.set({});
+  }
 </script>
 
 <style>
@@ -46,7 +50,7 @@
           <ul class="menu-list">
             <li>
               <a on:click|preventDefault={() => handleClick(2)}>
-                Generate invite
+                Create user
               </a>
             </li>
           </ul>
@@ -59,7 +63,7 @@
           <PasswordChangeForm />
         {:else if activeTab == 1}
           <div class="has-text-centered">
-            <button class="button is-primary is-large">Logout</button>
+            <button class="button is-primary is-large" on:click="{handleLogout}">Logout</button>
           </div>
         {:else if activeTab == 2}
           <GenerateInviteForm />

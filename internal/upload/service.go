@@ -20,7 +20,7 @@ func NewService() *Service {
 }
 
 // Save saves file to disk
-func (s *Service) save(file *multipart.FileHeader) error {
+func (s *Service) Save(file *multipart.FileHeader) error {
 	src, err := file.Open()
 	if err != nil {
 		return err
@@ -45,11 +45,10 @@ type fileData struct {
 	Name      string    `json:"name"`
 	Size      int64     `json:"size"`
 	CreatedAt time.Time `json:"createdAt"`
-	Owner     string    `json:"owner"`
 }
 
 // GenerateStatiscics generates statistic data
-func (s *Service) generateStatiscics() ([]*fileData, error) {
+func (s *Service) GenerateStatiscics() ([]*fileData, error) {
 	uploadDir := viper.GetString("upload_dir")
 	files, err := ioutil.ReadDir(uploadDir)
 	if err != nil {
@@ -62,7 +61,6 @@ func (s *Service) generateStatiscics() ([]*fileData, error) {
 			Name:      file.Name(),
 			Size:      file.Size(),
 			CreatedAt: file.ModTime(),
-			Owner:     "",
 		}
 		res[i] = fileData
 	}

@@ -1,11 +1,10 @@
 class API {
   constructor() {
     this.accept = 'application/json';
-    this.contentType = 'application/json';
   }
 
-  get(endpoint) {
-    return fetch(endpoint, {
+  async get(endpoint) {
+    return await fetch(endpoint, {
       method: 'GET',
       headers: {
         Accept: this.accept,
@@ -14,15 +13,25 @@ class API {
     });
   }
 
-  post(endpoint, body) {
-    return fetch(endpoint, {
-      method: 'POST',
+  async post(endpoint, body) {
+    const headers = {
+      Accept: this.accept,
+      Authorization: `Bearer ${document.cookie}`,
+      'Content-Type': 'application/json'
+    };
+    if (body instanceof FormData) {
+      delete headers['Content-Type'];
+    }
+    return await fetch(endpoint, { method: 'POST', headers, body });
+  }
+
+  async delete(endpoint) {
+    return await fetch(endpoint, {
+      method: 'DELETE',
       headers: {
         Accept: this.accept,
-        Authorization: `Bearer ${document.cookie}`,
-        'Content-Type': this.contentType
-      },
-      body: body
+        Authorization: `Bearer ${document.cookie}`
+      }
     });
   }
 }
