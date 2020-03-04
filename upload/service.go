@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/hichuyamichu-me/uploader/errors"
 	"github.com/spf13/viper"
 )
 
@@ -21,9 +22,11 @@ func NewService() *Service {
 
 // Save saves file to disk
 func (s *Service) Save(file *multipart.FileHeader) error {
+	const op errors.Op = "upload/service.Save"
+
 	src, err := file.Open()
 	if err != nil {
-		return err
+		return errors.E(err, errors.IO, op)
 	}
 	defer src.Close()
 
@@ -31,12 +34,12 @@ func (s *Service) Save(file *multipart.FileHeader) error {
 	filePath := fmt.Sprintf("%s/%s", uploadDir, file.Filename)
 	dst, err := os.Create(filePath)
 	if err != nil {
-		return err
+		return errors.E(err, errors.IO, op)
 	}
 	defer dst.Close()
 
 	if _, err = io.Copy(dst, src); err != nil {
-		return err
+		return errors.E(err, errors.IO, op)
 	}
 	return nil
 }
@@ -49,10 +52,12 @@ type fileData struct {
 
 // GenerateStatiscics generates statistic data
 func (s *Service) GenerateStatiscics() ([]*fileData, error) {
+	const op errors.Op = "upload/service.GenerateStatiscics"
+
 	uploadDir := viper.GetString("upload_dir")
 	files, err := ioutil.ReadDir(uploadDir)
 	if err != nil {
-		return nil, err
+		return nil, errors.E(err, errors.IO, op)
 	}
 
 	res := make([]*fileData, len(files))

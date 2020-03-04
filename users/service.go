@@ -1,8 +1,7 @@
 package users
 
 import (
-	"errors"
-
+	"github.com/hichuyamichu-me/uploader/errors"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -19,9 +18,11 @@ func NewService(usrRepo *Repository) *Service {
 
 // CreateUser creates a user
 func (s Service) CreateUser(user *User) error {
+	const op errors.Op = "users/service.CreateUser"
+
 	hash, err := s.hashPassword(user.Pass)
 	if err != nil {
-		return err
+		return errors.E(err, errors.Internal, op)
 	}
 	user.Pass = hash
 	return s.usrRepo.Create(user)
@@ -29,15 +30,19 @@ func (s Service) CreateUser(user *User) error {
 
 // DeleteUser deletes a user
 func (s Service) DeleteUser(id int) error {
+	const op errors.Op = "users/service.DeleteUser"
+
 	return s.usrRepo.Delete(id)
 }
 
 // ChangePassword changes user's password
 func (s Service) ChangePassword(userID int, pass string) error {
+	const op errors.Op = "users/service.ChangePassword"
+
 	where := &User{ID: userID}
 	hash, err := s.hashPassword(pass)
 	if err != nil {
-		return err
+		return errors.E(err, errors.Internal, op)
 	}
 	fields := &User{Pass: hash}
 	return s.usrRepo.Update(where, fields)
@@ -45,24 +50,28 @@ func (s Service) ChangePassword(userID int, pass string) error {
 
 // VerifyCredentials verifies user credentials
 func (s Service) VerifyCredentials(username, password string) (*User, error) {
+	const op errors.Op = "users/service.VerifyCredentials"
+
 	user, err := s.findOneByUsername(username)
 	if err != nil {
-		return nil, err
+		return nil, errors.E(err, errors.Authentication, op)
 	}
 
 	match := s.checkPasswordHash(password, user.Pass)
 	if !match {
-		return nil, errors.New("wrong password")
+		return nil, errors.E(err, errors.Authentication, op)
 	}
 
 	return user, nil
 }
 
 func (s Service) findOneByUsername(username string) (*User, error) {
+	const op errors.Op = "users/service.findOneByUsername"
+
 	user := &User{Username: username}
 	user, err := s.usrRepo.FindOne(user)
 	if err != nil {
-		return nil, err
+		return nil, errors.E(err, op)
 	}
 	return user, nil
 }

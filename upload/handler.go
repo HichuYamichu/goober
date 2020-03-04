@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/hichuyamichu-me/uploader/errors"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
 )
@@ -22,6 +23,8 @@ func NewHandler(uplServ *Service) *Handler {
 
 // Download handles file downloading
 func (h *Handler) Download(c echo.Context) error {
+	const op errors.Op = "upload/handler.Download"
+
 	fName := c.Param("name")
 	uploadDir := viper.GetString("upload_dir")
 	filePath := fmt.Sprintf("%s/%s", uploadDir, fName)
@@ -30,15 +33,19 @@ func (h *Handler) Download(c echo.Context) error {
 
 // Status handles status report
 func (h *Handler) Status(c echo.Context) error {
+	const op errors.Op = "upload/handler.Status"
+
 	data, err := h.uplServ.GenerateStatiscics()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError)
+		return errors.E(err, op)
 	}
 	return c.JSON(200, data)
 }
 
 // Upload handles file upload
 func (h *Handler) Upload(c echo.Context) error {
+	const op errors.Op = "upload/handler.Upload"
+
 	type uploadResult struct {
 		URL  string `json:"url"`
 		Name string `json:"name"`
@@ -47,7 +54,7 @@ func (h *Handler) Upload(c echo.Context) error {
 
 	form, err := c.MultipartForm()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return errors.E(err, errors.Invalid, op)
 	}
 	files := form.File["files"]
 
@@ -79,12 +86,14 @@ func (h *Handler) Upload(c echo.Context) error {
 
 // Delete reletes specyfied file
 func (h *Handler) Delete(c echo.Context) error {
+	const op errors.Op = "upload/handler.Delete"
+
 	fName := c.Param("name")
 	uploadDir := viper.GetString("upload_dir")
 	filePath := fmt.Sprintf("%s/%s", uploadDir, fName)
 	err := os.Remove(filePath)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError)
+		return errors.E(err, errors.IO, op)
 	}
 	return c.NoContent(http.StatusNoContent)
 }

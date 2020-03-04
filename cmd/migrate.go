@@ -4,7 +4,8 @@ import (
 	"crypto/rand"
 	"log"
 
-	"github.com/hichuyamichu-me/uploader/internal/users"
+	"github.com/hichuyamichu-me/uploader/db"
+	"github.com/hichuyamichu-me/uploader/users"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -23,7 +24,7 @@ var migrateCmd = &cobra.Command{
 		viper.Set("secret_key", string(key))
 		viper.WriteConfig()
 
-		db := connectDB()
+		db := db.Connect()
 		db.DropTableIfExists(&users.User{})
 		db.AutoMigrate(&users.User{})
 
