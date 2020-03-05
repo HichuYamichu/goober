@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"os"
-	"time"
 
 	"github.com/hichuyamichu-me/uploader/errors"
 	"github.com/spf13/viper"
@@ -44,14 +43,8 @@ func (s *Service) Save(file *multipart.FileHeader) error {
 	return nil
 }
 
-type fileData struct {
-	Name      string    `json:"name"`
-	Size      int64     `json:"size"`
-	CreatedAt time.Time `json:"createdAt"`
-}
-
 // GenerateStatiscics generates statistic data
-func (s *Service) GenerateStatiscics() ([]*fileData, error) {
+func (s *Service) GenerateStatiscics() ([]os.FileInfo, error) {
 	const op errors.Op = "upload/service.GenerateStatiscics"
 
 	uploadDir := viper.GetString("upload_dir")
@@ -60,15 +53,5 @@ func (s *Service) GenerateStatiscics() ([]*fileData, error) {
 		return nil, errors.E(err, errors.IO, op)
 	}
 
-	res := make([]*fileData, len(files))
-	for i, file := range files {
-		fileData := &fileData{
-			Name:      file.Name(),
-			Size:      file.Size(),
-			CreatedAt: file.ModTime(),
-		}
-		res[i] = fileData
-	}
-
-	return res, nil
+	return files, nil
 }

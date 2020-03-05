@@ -25,11 +25,15 @@ func (h *Handler) ChangePass(c echo.Context) error {
 	const op errors.Op = "users/handler.ChangePass"
 
 	type passChangePayload struct {
-		Pass string `json:"password"`
+		Pass string `json:"password" validate:"required"`
 	}
 
 	p := &passChangePayload{}
 	if err := c.Bind(p); err != nil {
+		return errors.E(err, errors.Invalid, op)
+	}
+
+	if err := c.Validate(p); err != nil {
 		return errors.E(err, errors.Invalid, op)
 	}
 
@@ -50,11 +54,15 @@ func (h *Handler) ActivateUser(c echo.Context) error {
 	const op errors.Op = "auth/handler.ActivateUser"
 
 	type activateUserPayload struct {
-		ID int `json:"id"`
+		ID int `json:"id" validate:"required"`
 	}
 
 	p := &activateUserPayload{}
 	if err := c.Bind(p); err != nil {
+		return errors.E(err, errors.Invalid, op)
+	}
+
+	if err := c.Validate(p); err != nil {
 		return errors.E(err, errors.Invalid, op)
 	}
 

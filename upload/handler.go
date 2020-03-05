@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/hichuyamichu-me/uploader/errors"
@@ -35,22 +36,35 @@ func (h *Handler) Download(c echo.Context) error {
 func (h *Handler) Status(c echo.Context) error {
 	const op errors.Op = "upload/handler.Status"
 
-	data, err := h.uplServ.GenerateStatiscics()
+	files, err := h.uplServ.GenerateStatiscics()
 	if err != nil {
 		return errors.E(err, op)
 	}
-	return c.JSON(200, data)
+
+	type statusResponce struct {
+		Name      string    `json:"name"`
+		Size      int64     `json:"size"`
+		CreatedAt time.Time `json:"createdAt"`
+		Owner     string    `json:"owner"`
+	}
+
+	res := make([]*statusResponce, len(files))
+	for i, file := range files {
+		fileData := &statusResponce{
+			Name:      file.Name(),
+			Size:      file.Size(),
+			CreatedAt: file.ModTime(),
+			Owner:     "",
+		}
+		res[i] = fileData
+	}
+
+	return c.JSON(200, res)
 }
 
 // Upload handles file upload
 func (h *Handler) Upload(c echo.Context) error {
 	const op errors.Op = "upload/handler.Upload"
-
-	type uploadResult struct {
-		URL  string `json:"url"`
-		Name string `json:"name"`
-		Size int64  `json:"size"`
-	}
 
 	form, err := c.MultipartForm()
 	if err != nil {
@@ -67,6 +81,12 @@ func (h *Handler) Upload(c echo.Context) error {
 		if sizeTotal > int64(sizeLimit) {
 			return echo.NewHTTPError(http.StatusRequestEntityTooLarge)
 		}
+	}
+
+	type uploadResult struct {
+		URL  string `json:"url"`
+		Name string `json:"name"`
+		Size int64  `json:"size"`
 	}
 
 	domain := viper.GetString("domain")

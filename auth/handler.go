@@ -28,12 +28,16 @@ func (h Handler) Login(c echo.Context) error {
 	const op errors.Op = "auth/handler.Login"
 
 	type loginPayload struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
+		Username string `json:"username" validate:"required"`
+		Password string `json:"password" validate:"required"`
 	}
 
 	p := &loginPayload{}
 	if err := c.Bind(p); err != nil {
+		return errors.E(err, errors.Invalid, op)
+	}
+
+	if err := c.Validate(p); err != nil {
 		return errors.E(err, errors.Invalid, op)
 	}
 
@@ -77,12 +81,16 @@ func (h *Handler) Register(c echo.Context) error {
 	const op errors.Op = "auth/handler.Register"
 
 	type registerPayload struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
+		Username string `json:"username" validate:"required"`
+		Password string `json:"password" validate:"required"`
 	}
 
 	p := &registerPayload{}
 	if err := c.Bind(p); err != nil {
+		return errors.E(err, errors.Invalid, op)
+	}
+
+	if err := c.Validate(p); err != nil {
 		return errors.E(err, errors.Invalid, op)
 	}
 
