@@ -31,8 +31,13 @@ var migrateCmd = &cobra.Command{
 		usersRepo := users.NewRepository(db)
 		usersService := users.NewService(usersRepo)
 
-		user := &users.User{Username: "root", Pass: "root", Admin: true, Quota: int64(100000000)}
-		err := usersService.CreateUser(user)
+		user := &users.User{Username: "root", Pass: "root", Admin: true, Active: true, Quota: int64(100000000)}
+		pass, err := usersService.HashPassword(user.Pass)
+		if err != nil {
+			log.Fatal(err)
+		}
+		user.Pass = pass
+		err = usersRepo.Create(user)
 		if err != nil {
 			log.Fatal(err)
 		}

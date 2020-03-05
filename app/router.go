@@ -1,13 +1,13 @@
-package router
+package app
 
 import (
+	"github.com/hichuyamichu-me/uploader/app/middleware"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
 )
 
-// New creates new preconfigured router
-func New() *echo.Echo {
+// newRouter creates new preconfigured router
+func newRouter() *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
 	e.HTTPErrorHandler = httpErrorHandler

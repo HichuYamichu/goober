@@ -1,9 +1,9 @@
-package router
+package app
 
 import (
 	"net/http"
 
-	"github.com/hichuyamichu/myriag/errors"
+	"github.com/hichuyamichu-me/uploader/errors"
 	"github.com/labstack/echo/v4"
 )
 

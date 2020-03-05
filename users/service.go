@@ -2,6 +2,7 @@ package users
 
 import (
 	"github.com/hichuyamichu-me/uploader/errors"
+	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -16,72 +17,43 @@ func NewService(usrRepo *Repository) *Service {
 	return s
 }
 
-// CreateUser creates a user
-func (s Service) CreateUser(user *User) error {
-	const op errors.Op = "users/service.CreateUser"
-
-	hash, err := s.hashPassword(user.Pass)
-	if err != nil {
-		return errors.E(err, errors.Internal, op)
-	}
-	user.Pass = hash
-	return s.usrRepo.Create(user)
-}
-
-// DeleteUser deletes a user
-func (s Service) DeleteUser(id int) error {
-	const op errors.Op = "users/service.DeleteUser"
-
-	return s.usrRepo.Delete(id)
-}
-
 // ChangePassword changes user's password
 func (s Service) ChangePassword(userID int, pass string) error {
 	const op errors.Op = "users/service.ChangePassword"
 
-	where := &User{ID: userID}
-	hash, err := s.hashPassword(pass)
+	// where := &User{ID: userID}
+	hash, err := s.HashPassword(pass)
 	if err != nil {
 		return errors.E(err, errors.Internal, op)
 	}
-	fields := &User{Pass: hash}
-	return s.usrRepo.Update(where, fields)
+	// fields := &User{Pass: hash}
+	user := &User{ID: userID, Pass: hash}
+	return s.usrRepo.Update(user)
 }
 
-// VerifyCredentials verifies user credentials
-func (s Service) VerifyCredentials(username, password string) (*User, error) {
-	const op errors.Op = "users/service.VerifyCredentials"
+// CreateUser creates user
+func (s Service) CreateUser(username string, password string) error {
+	const op errors.Op = "users/service.CreateUser"
 
-	user, err := s.findOneByUsername(username)
+	quota := viper.GetInt64("quota")
+	password, err := s.HashPassword(password)
 	if err != nil {
-		return nil, errors.E(err, errors.Authentication, op)
+		return errors.E(err, errors.Internal, op)
 	}
-
-	match := s.checkPasswordHash(password, user.Pass)
-	if !match {
-		return nil, errors.E(err, errors.Authentication, op)
-	}
-
-	return user, nil
+	user := &User{Username: username, Pass: password, Admin: false, Active: false, Quota: quota}
+	return s.usrRepo.Create(user)
 }
 
-func (s Service) findOneByUsername(username string) (*User, error) {
-	const op errors.Op = "users/service.findOneByUsername"
+// ActivateUser activates user
+func (s Service) ActivateUser(id int) error {
+	const op errors.Op = "users/service.ActivateUser"
 
-	user := &User{Username: username}
-	user, err := s.usrRepo.FindOne(user)
-	if err != nil {
-		return nil, errors.E(err, op)
-	}
-	return user, nil
+	user := &User{ID: id, Active: true}
+	return s.usrRepo.Update(user)
 }
 
-func (s Service) hashPassword(password string) (string, error) {
+// HashPassword hashes user password
+func (s Service) HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
-}
-
-func (s Service) checkPasswordHash(password, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
 }

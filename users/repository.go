@@ -16,6 +16,21 @@ func NewRepository(db *gorm.DB) *Repository {
 	return r
 }
 
+// FindByUsername finds user by username
+func (r Repository) FindByUsername(username string) (*User, error) {
+	const op errors.Op = "users/repository.FindByUsername"
+
+	user := &User{}
+	if err := r.db.Where(&User{Username: username}).First(&user).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return nil, errors.E(errors.Errorf("user not found"), errors.NotFound, op)
+		}
+		return nil, errors.E(err, errors.Internal, op)
+	}
+
+	return user, nil
+}
+
 // FindOne finds one user
 func (r Repository) FindOne(where *User) (*User, error) {
 	const op errors.Op = "users/repository.FindOne"
@@ -49,11 +64,11 @@ func (r Repository) Delete(id int) error {
 }
 
 // Update updates a user
-func (r Repository) Update(where *User, update *User) error {
+func (r Repository) Update(u *User) error {
 	const op errors.Op = "users/repository.Update"
 
-	user := &User{}
-	if err := r.db.Model(user).Where(where).Update(update).Error; err != nil {
+	// user := &User{}
+	if err := r.db.Model(u).Update(u).Error; err != nil {
 		return errors.E(err, errors.Internal, op)
 	}
 	return nil

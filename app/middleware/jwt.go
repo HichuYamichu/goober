@@ -7,8 +7,12 @@ import (
 	"github.com/spf13/viper"
 )
 
-var JWT = middleware.JWT([]byte(viper.GetString("secret_key")))
+// JWT JWT middleware
+func JWT() echo.MiddlewareFunc {
+	return middleware.JWT([]byte(viper.GetString("secret_key")))
+}
 
+// Admin admin middleware
 func Admin(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		user := c.Get("user").(*jwt.Token)

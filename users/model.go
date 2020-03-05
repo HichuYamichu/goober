@@ -6,5 +6,6 @@ type User struct {
 	Username string `json:"username"`
 	Pass     string `json:"-"`
 	Admin    bool   `json:"admin"`
+	Active   bool   `json:"active"`
 	Quota    int64  `json:"quota"`
 }

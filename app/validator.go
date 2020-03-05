@@ -1,4 +1,4 @@
-package router
+package app
 
 import "github.com/go-playground/validator/v10"
 
