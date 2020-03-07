@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import Tabs from "../components/tabs.svelte";
+  import Tabs from "../components/indexTabs.svelte";
   import { api } from "../api";
 
   let files = [];
@@ -10,31 +10,18 @@
     for (const file of event.target.files) {
       formData.append("files", file);
     }
-    try {
-      await api.post("/api/upload", formData);
-      await getStatus();
-    } catch (e) {
-      console.error(e);
-    }
+    await api.upload(formData);
+    files = await api.getFiles();
   }
 
   async function handleDelete(event) {
     const { fileName } = event.detail;
-    try {
-      await api.delete(`/api/admin/delete_file/${fileName}`);
-      await getStatus();
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  async function getStatus() {
-    const response = await api.get("/api/status");
-    files = await response.json();
+    await api.deleteFile(fileName);
+    files = await api.getFiles();
   }
 
   onMount(async () => {
-    await getStatus();
+    files = await api.getFiles();
   });
 </script>
 

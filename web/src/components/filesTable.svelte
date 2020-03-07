@@ -1,8 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { onMount } from "svelte";
   import { user } from "../store";
-  import { api } from "../api";
 
   const dispatch = createEventDispatcher();
 
@@ -44,10 +42,10 @@
         <tr>
           <th>{i + 1}</th>
           <td>{file.name}</td>
-          <td>{(file.size * 10e-6).toFixed(3)}MB</td>
+          <td>{(file.size * 10e-5).toFixed(3)}MB</td>
           <td>{new Date(file.createdAt).toLocaleDateString('pl-PL')}</td>
           <td>
-            <button class="button is-small">
+            <button class="button is-small is-success is-inverted">
               <a class="is-small" download href="/api/download/{file.name}">
                 <span class="icon is-small ">
                   <i class="fas fa-download" />

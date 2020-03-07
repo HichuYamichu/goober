@@ -29,22 +29,23 @@ func New() *echo.Echo {
 
 	api := r.Group("/api")
 	api.GET("/download/:name", uploadHandler.Download)
-	api.GET("/status", uploadHandler.Status, jwtMW)
-	api.POST("/upload", uploadHandler.Upload, jwtMW)
 
-	usersAPI := api.Group("/user")
-	usersAPI.Use(jwtMW)
-	usersAPI.POST("/password/change", usersHandler.ChangePass)
+	filesAPI := api.Group("/files")
+	filesAPI.Use(jwtMW)
+	filesAPI.DELETE("/delete/:name", uploadHandler.Delete, middleware.Admin)
+	filesAPI.POST("/upload", uploadHandler.Upload)
+	filesAPI.GET("/list", uploadHandler.FilesInfo)
+
+	userAPI := api.Group("/user")
+	userAPI.Use(jwtMW)
+	userAPI.GET("/list", usersHandler.ListUsers, middleware.Admin)
+	userAPI.POST("/activate", usersHandler.ActivateUser, middleware.Admin)
+	userAPI.POST("/password/change", usersHandler.ChangePass)
+	userAPI.DELETE("/delete/:id", usersHandler.DeleteUser)
 
 	authAPI := api.Group("/auth")
 	authAPI.POST("/login", authHandler.Login)
 	authAPI.POST("/register", authHandler.Register)
-
-	adminAPI := api.Group("/admin")
-	adminAPI.Use(jwtMW)
-	adminAPI.Use(middleware.Admin)
-	adminAPI.PUT("/activate", usersHandler.ActivateUser)
-	adminAPI.DELETE("/delete_file/:name", uploadHandler.Delete)
 
 	r.Use(middleware.ServeSPA)
 

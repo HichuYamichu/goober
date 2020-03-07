@@ -31,33 +31,23 @@ func (r Repository) FindByUsername(username string) (*User, error) {
 	return user, nil
 }
 
-// FindOne finds one user
-func (r Repository) FindOne(where *User) (*User, error) {
-	const op errors.Op = "users/repository.FindOne"
+// Find returns all users
+func (r Repository) Find() ([]*User, error) {
+	const op errors.Op = "users/repository.Find"
 
-	user := &User{}
-	if r.db.Where(where).First(&user).RecordNotFound() {
-		return nil, errors.E(errors.Errorf("user not found"), errors.NotFound, op)
+	users := []*User{}
+	if err := r.db.Find(&users).Error; err != nil {
+		return nil, errors.E(err, errors.Internal, op)
 	}
-	return user, nil
+
+	return users, nil
 }
 
 // Create saves a user in DB
-func (r Repository) Create(user *User) error {
+func (r Repository) Create(u *User) error {
 	const op errors.Op = "users/repository.Create"
 
-	if err := r.db.Create(user).Error; err != nil {
-		return errors.E(err, errors.Internal, op)
-	}
-	return nil
-}
-
-// Delete deletes a user
-func (r Repository) Delete(id int) error {
-	const op errors.Op = "users/repository.Delete"
-
-	user := &User{ID: id}
-	if err := r.db.Delete(user).Error; err != nil {
+	if err := r.db.Create(u).Error; err != nil {
 		return errors.E(err, errors.Internal, op)
 	}
 	return nil
@@ -67,8 +57,17 @@ func (r Repository) Delete(id int) error {
 func (r Repository) Update(u *User) error {
 	const op errors.Op = "users/repository.Update"
 
-	// user := &User{}
 	if err := r.db.Model(u).Update(u).Error; err != nil {
+		return errors.E(err, errors.Internal, op)
+	}
+	return nil
+}
+
+// Delete deletes a user
+func (r Repository) Delete(u *User) error {
+	const op errors.Op = "users/repository.Delete"
+
+	if err := r.db.Delete(u).Error; err != nil {
 		return errors.E(err, errors.Internal, op)
 	}
 	return nil

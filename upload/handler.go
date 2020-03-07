@@ -32,11 +32,11 @@ func (h *Handler) Download(c echo.Context) error {
 	return c.File(filePath)
 }
 
-// Status handles status report
-func (h *Handler) Status(c echo.Context) error {
-	const op errors.Op = "upload/handler.Status"
+// FilesInfo handles FilesInfo report
+func (h *Handler) FilesInfo(c echo.Context) error {
+	const op errors.Op = "upload/handler.FilesInfo"
 
-	files, err := h.uplServ.GenerateStatiscics()
+	files, err := h.uplServ.GetFileData()
 	if err != nil {
 		return errors.E(err, op)
 	}
@@ -115,5 +115,5 @@ func (h *Handler) Delete(c echo.Context) error {
 	if err != nil {
 		return errors.E(err, errors.IO, op)
 	}
-	return c.NoContent(http.StatusNoContent)
+	return c.JSON(http.StatusOK, map[string]interface{}{"message": "file deleted successfully"})
 }

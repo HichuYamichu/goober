@@ -1,8 +1,8 @@
 package users
 
 import (
-	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/hichuyamichu-me/uploader/errors"
@@ -25,7 +25,7 @@ func (h *Handler) ChangePass(c echo.Context) error {
 	const op errors.Op = "users/handler.ChangePass"
 
 	type passChangePayload struct {
-		Pass string `json:"password" validate:"required"`
+		Password string `json:"password" validate:"required"`
 	}
 
 	p := &passChangePayload{}
@@ -40,13 +40,13 @@ func (h *Handler) ChangePass(c echo.Context) error {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	userID := claims["id"].(float64)
-	fmt.Println(userID)
 
-	err := h.usrServ.ChangePassword(int(userID), p.Pass)
+	err := h.usrServ.ChangePassword(int(userID), p.Password)
 	if err != nil {
 		return errors.E(err, op)
 	}
-	return nil
+
+	return c.JSON(http.StatusOK, map[string]interface{}{"message": "password changed"})
 }
 
 // ActivateUser handles activation of user account
@@ -72,4 +72,34 @@ func (h *Handler) ActivateUser(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{"message": "user activated"})
+}
+
+// ListUsers handles user listing
+func (h *Handler) ListUsers(c echo.Context) error {
+	const op errors.Op = "auth/handler.ListUsers"
+
+	users, err := h.usrServ.ListUsers()
+	if err != nil {
+		return errors.E(err, errors.Internal, op)
+	}
+
+	return c.JSON(http.StatusOK, users)
+}
+
+// DeleteUser handles user deletion
+func (h *Handler) DeleteUser(c echo.Context) error {
+	const op errors.Op = "auth/handler.DeleteUser"
+
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		return errors.E(err, errors.Invalid, op)
+	}
+
+	err = h.usrServ.DeleteUser(id)
+	if err != nil {
+		return errors.E(err, errors.Internal, op)
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{"message": "user deleted successfully"})
 }

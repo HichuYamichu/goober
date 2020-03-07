@@ -1,6 +1,6 @@
 <script>
-  import Table from "./table.svelte";
-  import Panel from "./panel.svelte";
+  import Table from "./filesTable.svelte";
+  import Panel from "./adminPanel.svelte";
 
   let activeTab = 0;
   export let files = [];

@@ -1,6 +1,6 @@
 <script>
   import PasswordChangeForm from "./forms/passwordChangeForm.svelte";
-  import GenerateInviteForm from "./forms/createUserForm.svelte";
+  import UsersTable from "./usersTable.svelte";
   import { user } from "../store";
 
   let userValue;
@@ -49,9 +49,7 @@
           <p class="menu-label">Admin</p>
           <ul class="menu-list">
             <li>
-              <a on:click|preventDefault={() => handleClick(2)}>
-                Create user
-              </a>
+              <a on:click|preventDefault={() => handleClick(2)}>Users</a>
             </li>
           </ul>
         {/if}
@@ -63,10 +61,12 @@
           <PasswordChangeForm />
         {:else if activeTab == 1}
           <div class="has-text-centered">
-            <button class="button is-primary is-large" on:click="{handleLogout}">Logout</button>
+            <button class="button is-primary is-large" on:click={handleLogout}>
+              Logout
+            </button>
           </div>
         {:else if activeTab == 2}
-          <GenerateInviteForm />
+          <UsersTable />
         {/if}
       </div>
     </div>

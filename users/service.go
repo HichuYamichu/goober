@@ -18,21 +18,20 @@ func NewService(usrRepo *Repository) *Service {
 }
 
 // ChangePassword changes user's password
-func (s Service) ChangePassword(userID int, pass string) error {
+func (s *Service) ChangePassword(userID int, pass string) error {
 	const op errors.Op = "users/service.ChangePassword"
 
-	// where := &User{ID: userID}
 	hash, err := s.HashPassword(pass)
 	if err != nil {
 		return errors.E(err, errors.Internal, op)
 	}
-	// fields := &User{Pass: hash}
+
 	user := &User{ID: userID, Pass: hash}
 	return s.usrRepo.Update(user)
 }
 
 // CreateUser creates user
-func (s Service) CreateUser(username string, password string) error {
+func (s *Service) CreateUser(username string, password string) error {
 	const op errors.Op = "users/service.CreateUser"
 
 	quota := viper.GetInt64("quota")
@@ -45,7 +44,7 @@ func (s Service) CreateUser(username string, password string) error {
 }
 
 // ActivateUser activates user
-func (s Service) ActivateUser(id int) error {
+func (s *Service) ActivateUser(id int) error {
 	const op errors.Op = "users/service.ActivateUser"
 
 	user := &User{ID: id, Active: true}
@@ -53,7 +52,18 @@ func (s Service) ActivateUser(id int) error {
 }
 
 // HashPassword hashes user password
-func (s Service) HashPassword(password string) (string, error) {
+func (s *Service) HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
+}
+
+// ListUsers returns all users
+func (s *Service) ListUsers() ([]*User, error) {
+	return s.usrRepo.Find()
+}
+
+// DeleteUser deletes a user
+func (s *Service) DeleteUser(id int) error {
+	user := &User{ID: id}
+	return s.usrRepo.Delete(user)
 }

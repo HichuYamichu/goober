@@ -37,7 +37,7 @@ func (e *Error) Error() string {
 	if e.Err != nil {
 		if prevErr, ok := e.Err.(*Error); ok {
 			if !prevErr.isZero() {
-				pad(b, ":\n")
+				pad(b, ": ")
 				b.WriteString(e.Err.Error())
 			}
 		} else {
@@ -73,7 +73,7 @@ func (k Kind) String() string {
 	case Other:
 		return "other error"
 	case Invalid:
-		return "invalid operation"
+		return "invalid input"
 	case IO:
 		return "I/O error"
 	case Internal:
@@ -90,7 +90,6 @@ func (k Kind) String() string {
 
 // HTTPStatus transforms error kind to HTTP status code
 func (k Kind) HTTPStatus() int {
-	fmt.Println(k)
 	switch k {
 	case Invalid:
 		return 400

@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Handler handles all user domain actions
+// Handler handles all auth domain actions
 type Handler struct {
 	authSrv *Service
 	usrServ *users.Service
@@ -24,7 +24,7 @@ func NewHandler(authSrv *Service, usrServ *users.Service) *Handler {
 }
 
 // Login handles user login
-func (h Handler) Login(c echo.Context) error {
+func (h *Handler) Login(c echo.Context) error {
 	const op errors.Op = "auth/handler.Login"
 
 	type loginPayload struct {

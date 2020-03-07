@@ -2,20 +2,17 @@
   import { api } from "../../api";
 
   async function handleSubmit(event) {
-    let password = event.target.password.value;
-    let passwordConfirm = event.target.passwordConfirm.value;
+    const resultEl = document.querySelector("#result");
+
+    const password = event.target.password.value;
+    const passwordConfirm = event.target.passwordConfirm.value;
     if (password !== passwordConfirm) {
-      document.getElementById("result").innerHTML = "passwords don't match";
+      resultEl.innerHTML = "passwords don't match";
       return;
     }
 
-    const payload = { password };
-    const response = await api.post(
-      "/api/password/change",
-      JSON.stringify(payload)
-    );
-    const data = await response.json();
-    console.log(data);
+    const res = await api.changePassword(password);
+    resultEl.innerHTML = res.message;
   }
 </script>
 
@@ -42,7 +39,7 @@
         value="Set new password"
         class="button is-primary " />
     </p>
-    <p id="result" />
+    <p id="result" class="has-text-centered" />
   </form>
 
 </main>

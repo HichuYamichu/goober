@@ -43,9 +43,9 @@ func (s *Service) Save(file *multipart.FileHeader) error {
 	return nil
 }
 
-// GenerateStatiscics generates statistic data
-func (s *Service) GenerateStatiscics() ([]os.FileInfo, error) {
-	const op errors.Op = "upload/service.GenerateStatiscics"
+// GetFileData generates statistic data
+func (s *Service) GetFileData() ([]os.FileInfo, error) {
+	const op errors.Op = "upload/service.GetFileData"
 
 	uploadDir := viper.GetString("upload_dir")
 	files, err := ioutil.ReadDir(uploadDir)

@@ -1,4 +1,4 @@
-class API {
+export class HTTPClient {
   constructor() {
     this.accept = 'application/json';
   }
@@ -35,7 +35,3 @@ class API {
     });
   }
 }
-
-const api = new API();
-
-export { api };

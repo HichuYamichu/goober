@@ -1,7 +1,7 @@
 <script>
   import "./scss-entrypoint.scss";
   import Index from "./views/index.svelte";
-  import Login from "./views/login.svelte";
+  import Auth from "./views/auth.svelte";
   import { user } from "./store";
 
   user.useSessionStorage();
@@ -29,6 +29,6 @@
   {#if userValue.username}
     <Index />
   {:else}
-    <Login />
+    <Auth />
   {/if}
 </main>
