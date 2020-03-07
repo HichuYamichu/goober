@@ -1,9 +1,35 @@
-FROM rustlang/rust:nightly AS builder
-WORKDIR /usr/src/uploader
+FROM golang:latest AS go-build
+
+WORKDIR /build
+
+ENV GO111MODULE=on
+
+COPY go.mod go.sum ./
+
+RUN go mod download
+
 COPY . .
-RUN cargo install --path .
 
-FROM debian:buster-slim
-COPY --from=builder /usr/local/cargo/bin/uploader /usr/local/bin/uploader
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -o uploader ./main.go
 
-CMD ["uploader"]
+FROM node:latest AS node-build
+
+WORKDIR /build
+
+COPY ./web/package.json ./web/yarn.lock ./
+
+COPY ./web .
+
+RUN yarn && yarn build
+
+FROM scratch
+
+WORKDIR /uploder
+
+COPY --from=go-build /build/uploader /uploder/
+COPY --from=node-build /build/public /uploder/web/public
+COPY ./config.yaml /uploder/
+
+EXPOSE 9000
+
+CMD ["./uploader", "start"]

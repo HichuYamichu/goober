@@ -4,8 +4,7 @@ services:
   uploader:
     image: hichuyamichu/uploader:latest
     volumes:
-       - data:/usr/src/uploader/upload
-       - ./Config.toml:/usr/src/uploader/Config.toml
+      - data:/uploder/data
     restart: unless-stopped
     networks:
       - main
