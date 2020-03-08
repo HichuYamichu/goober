@@ -5,6 +5,7 @@ services:
     image: hichuyamichu/uploader:latest
     volumes:
       - data:/uploder/data
+      - ./config.yaml:/uploder/config.yaml
     restart: unless-stopped
     networks:
       - main

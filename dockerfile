@@ -28,7 +28,6 @@ WORKDIR /uploder
 
 COPY --from=go-build /build/uploader /uploder/
 COPY --from=node-build /build/public /uploder/web/public
-COPY ./config.yaml /uploder/
 
 EXPOSE 9000
 
