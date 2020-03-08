@@ -96,7 +96,7 @@ func (h *Handler) Register(c echo.Context) error {
 
 	err := h.usrServ.CreateUser(p.Username, p.Password)
 	if err != nil {
-		return errors.E(err, errors.Internal, op)
+		return errors.E(err, op)
 	}
 
 	return c.JSON(http.StatusCreated, map[string]interface{}{"message": "register request waiting for approval"})

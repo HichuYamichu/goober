@@ -1,8 +1,11 @@
 package users
 
 import (
+	"fmt"
+
 	"github.com/hichuyamichu-me/uploader/errors"
 	"github.com/jinzhu/gorm"
+	"github.com/lib/pq"
 )
 
 // Repository performs CRUD on users table
@@ -48,8 +51,16 @@ func (r Repository) Create(u *User) error {
 	const op errors.Op = "users/repository.Create"
 
 	if err := r.db.Create(u).Error; err != nil {
+		e, ok := err.(*pq.Error)
+		if ok {
+			fmt.Println(e.Code)
+			if e.Code == "23505" {
+				return errors.E(err, errors.Invalid, op)
+			}
+		}
 		return errors.E(err, errors.Internal, op)
 	}
+
 	return nil
 }
 
@@ -60,6 +71,7 @@ func (r Repository) Update(u *User) error {
 	if err := r.db.Model(u).Update(u).Error; err != nil {
 		return errors.E(err, errors.Internal, op)
 	}
+
 	return nil
 }
 
@@ -70,5 +82,6 @@ func (r Repository) Delete(u *User) error {
 	if err := r.db.Delete(u).Error; err != nil {
 		return errors.E(err, errors.Internal, op)
 	}
+
 	return nil
 }
