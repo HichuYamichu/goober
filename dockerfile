@@ -22,7 +22,7 @@ COPY ./web .
 
 RUN yarn && yarn build
 
-FROM scratch
+FROM alpine
 
 WORKDIR /uploder
 
