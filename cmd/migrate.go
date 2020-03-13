@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/hichuyamichu-me/uploader/db"
-	"github.com/hichuyamichu-me/uploader/users"
+	"github.com/hichuyamichu-me/uploader/internal/users"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

@@ -1,16 +1,27 @@
 package app
 
 import (
-	"github.com/hichuyamichu-me/uploader/app/middleware"
-	"github.com/hichuyamichu-me/uploader/auth"
+	"context"
+	"fmt"
+
 	"github.com/hichuyamichu-me/uploader/db"
-	"github.com/hichuyamichu-me/uploader/upload"
-	"github.com/hichuyamichu-me/uploader/users"
+	"github.com/hichuyamichu-me/uploader/internal/auth"
+	"github.com/hichuyamichu-me/uploader/internal/upload"
+	"github.com/hichuyamichu-me/uploader/internal/users"
 	"github.com/labstack/echo/v4"
 )
 
+// App main app struct
+type App struct {
+	usersHandler  *users.Handler
+	authHandler   *auth.Handler
+	uploadHandler *upload.Handler
+
+	router *echo.Echo
+}
+
 // New bootstraps app
-func New() *echo.Echo {
+func New() *App {
 	db := db.Connect()
 
 	usersRepo := users.NewRepository(db)
@@ -23,31 +34,24 @@ func New() *echo.Echo {
 	uploadService := upload.NewService()
 	uploadHandler := upload.NewHandler(uploadService)
 
-	r := newRouter()
+	app := &App{
+		router:        newRouter(),
+		usersHandler:  usersHandler,
+		authHandler:   authHandler,
+		uploadHandler: uploadHandler,
+	}
 
-	jwtMW := middleware.JWT()
+	app.setRoutes()
 
-	api := r.Group("/api")
-	api.GET("/download/:name", uploadHandler.Download)
+	return app
+}
 
-	filesAPI := api.Group("/files")
-	filesAPI.Use(jwtMW)
-	filesAPI.DELETE("/delete/:name", uploadHandler.Delete, middleware.Admin)
-	filesAPI.POST("/upload", uploadHandler.Upload)
-	filesAPI.GET("/list", uploadHandler.FilesInfo)
+// Shutdown shuts down the app
+func (a *App) Shutdown(ctx context.Context) {
+	a.router.Shutdown(ctx)
+}
 
-	userAPI := api.Group("/user")
-	userAPI.Use(jwtMW)
-	userAPI.GET("/list", usersHandler.ListUsers, middleware.Admin)
-	userAPI.POST("/activate", usersHandler.ActivateUser, middleware.Admin)
-	userAPI.POST("/password/change", usersHandler.ChangePass)
-	userAPI.DELETE("/delete/:id", usersHandler.DeleteUser)
-
-	authAPI := api.Group("/auth")
-	authAPI.POST("/login", authHandler.Login)
-	authAPI.POST("/register", authHandler.Register)
-
-	r.Use(middleware.ServeSPA)
-
-	return r
+// Start starts the app
+func (a *App) Start(host string, port string) error {
+	return a.router.Start(fmt.Sprintf("%s:%s", host, port))
 }

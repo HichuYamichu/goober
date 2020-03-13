@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -28,8 +28,8 @@ var startCmd = &cobra.Command{
 			app.Shutdown(ctx)
 		}()
 
-		port := viper.GetString("port")
-		host := viper.GetString("host")
-		app.Logger.Fatal(app.Start(fmt.Sprintf("%s:%s", host, port)))
+		host := viper.GetString("app_host")
+		port := viper.GetString("app_port")
+		log.Fatal(app.Start(host, port))
 	},
 }
