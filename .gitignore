@@ -1,6 +1,6 @@
 config.yaml
 data/
-web/public/
+web/public/build
 
 node_modules/
 
