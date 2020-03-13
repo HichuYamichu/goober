@@ -16,8 +16,6 @@ FROM node:latest AS node-build
 
 WORKDIR /build
 
-COPY ./web/package.json ./web/yarn.lock ./
-
 COPY ./web .
 
 RUN yarn && yarn build
@@ -27,7 +25,7 @@ FROM scratch
 WORKDIR /uploder
 
 COPY --from=go-build /build/uploader /uploder/
-COPY --from=node-build /build/public /uploder/web/
+COPY --from=node-build /build/public/ /uploder/web/public
 
 EXPOSE 9000
 
