@@ -2,7 +2,7 @@ package auth
 
 import (
 	"github.com/hichuyamichu-me/uploader/errors"
-	"github.com/hichuyamichu-me/uploader/users"
+	"github.com/hichuyamichu-me/uploader/internal/users"
 	"golang.org/x/crypto/bcrypt"
 )
 
