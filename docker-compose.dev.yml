@@ -6,10 +6,11 @@ services:
     restart: unless-stopped
     volumes:
       - data:/uploder/data
+      - ./config.yaml:/uploder/config.yaml
     networks:
       - dev
     ports:
-      - 9000:9000
+      - 3000:9000
 
 networks:
   dev:

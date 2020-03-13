@@ -27,7 +27,7 @@ FROM scratch
 WORKDIR /uploder
 
 COPY --from=go-build /build/uploader /uploder/
-COPY --from=node-build /build/public /uploder/web/public
+COPY --from=node-build /build/public /uploder/web/
 
 EXPOSE 9000
 
