@@ -1,13 +1,11 @@
 package cmd
 
 import (
-	"crypto/rand"
 	"log"
 
 	"github.com/hichuyamichu-me/uploader/db"
 	"github.com/hichuyamichu-me/uploader/internal/users"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 const bits = 256
@@ -16,14 +14,6 @@ var migrateCmd = &cobra.Command{
 	Use:   "migrate",
 	Short: "Runs migrations, generates secure key and ensures admin user existance",
 	Run: func(cmd *cobra.Command, args []string) {
-		size := bits / 8
-		key := make([]byte, size)
-		if _, err := rand.Read(key); err != nil {
-			log.Fatal(err)
-		}
-		viper.Set("secret_key", string(key))
-		viper.WriteConfig()
-
 		db := db.Connect()
 		db.DropTableIfExists(&users.User{})
 		db.AutoMigrate(&users.User{})
@@ -37,6 +27,13 @@ var migrateCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 		user.Pass = pass
+
+		token, err := usersService.GenerateToken(user.Username)
+		if err != nil {
+			log.Fatal(err)
+		}
+		user.Token = token
+
 		err = usersRepo.Create(user)
 		if err != nil {
 			log.Fatal(err)

@@ -7,5 +7,6 @@ type User struct {
 	Pass     string `gorm:"not null;" json:"-"`
 	Admin    bool   `gorm:"not null;" json:"admin"`
 	Active   bool   `gorm:"not null;" json:"active"`
+	Token    string `gorm:"not null;" json:"token"`
 	Quota    int64  `gorm:"not null;" json:"quota"`
 }

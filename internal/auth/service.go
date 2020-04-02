@@ -18,7 +18,7 @@ func NewService(usrRepo *users.Repository) *Service {
 }
 
 // VerifyCredentials verifies user credentials
-func (s Service) VerifyCredentials(username, password string) (*users.User, error) {
+func (s *Service) VerifyCredentials(username, password string) (*users.User, error) {
 	const op errors.Op = "auth/service.VerifyCredentials"
 
 	user, err := s.usrRepo.FindByUsername(username)
@@ -34,7 +34,7 @@ func (s Service) VerifyCredentials(username, password string) (*users.User, erro
 	return user, nil
 }
 
-func (s Service) checkPasswordHash(password, hash string) bool {
+func (s *Service) checkPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }

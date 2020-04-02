@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hichuyamichu-me/uploader/app/middleware"
 	"github.com/hichuyamichu-me/uploader/db"
 	"github.com/hichuyamichu-me/uploader/internal/auth"
 	"github.com/hichuyamichu-me/uploader/internal/upload"
@@ -41,7 +42,8 @@ func New() *App {
 		uploadHandler: uploadHandler,
 	}
 
-	app.setRoutes()
+	mwService := middleware.NewMiddlewareService(usersRepo)
+	app.setRoutes(mwService)
 
 	return app
 }

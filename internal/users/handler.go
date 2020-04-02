@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/hichuyamichu-me/uploader/errors"
 	"github.com/labstack/echo/v4"
 )
@@ -37,11 +36,9 @@ func (h *Handler) ChangePass(c echo.Context) error {
 		return errors.E(err, errors.Invalid, op)
 	}
 
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	userID := claims["id"].(float64)
+	user := c.Get("user").(*User)
 
-	err := h.usrServ.ChangePassword(int(userID), p.Password)
+	err := h.usrServ.ChangePassword(user.ID, p.Password)
 	if err != nil {
 		return errors.E(err, op)
 	}

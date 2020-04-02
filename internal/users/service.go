@@ -1,6 +1,9 @@
 package users
 
 import (
+	"crypto/md5"
+	"encoding/hex"
+
 	"github.com/hichuyamichu-me/uploader/errors"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
@@ -39,8 +42,28 @@ func (s *Service) CreateUser(username string, password string) error {
 	if err != nil {
 		return errors.E(err, errors.Internal, op)
 	}
-	user := &User{Username: username, Pass: password, Admin: false, Active: false, Quota: quota}
+
+	token, err := s.GenerateToken(username)
+	if err != nil {
+		return errors.E(err, op)
+	}
+
+	user := &User{Username: username, Pass: password, Admin: false, Active: false, Quota: quota, Token: token}
 	return s.usrRepo.Create(user)
+}
+
+func (s *Service) GenerateToken(username string) (string, error) {
+	const op errors.Op = "auth/service.GenerateToken"
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(username), bcrypt.DefaultCost)
+	if err != nil {
+		return "", errors.E(err, errors.Internal, op)
+	}
+
+	hasher := md5.New()
+	hasher.Write(hash)
+	token := hex.EncodeToString(hasher.Sum(nil))
+	return token, nil
 }
 
 // ActivateUser activates user

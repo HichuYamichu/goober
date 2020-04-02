@@ -1,14 +1,12 @@
 package auth
 
 import (
+	"fmt"
 	"net/http"
-	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/hichuyamichu-me/uploader/errors"
 	"github.com/hichuyamichu-me/uploader/internal/users"
 	"github.com/labstack/echo/v4"
-	"github.com/spf13/viper"
 )
 
 // Handler handles all auth domain actions
@@ -50,27 +48,15 @@ func (h *Handler) Login(c echo.Context) error {
 		return errors.E(errors.Errorf("user not active"), errors.Authentication, op)
 	}
 
-	token := jwt.New(jwt.SigningMethodHS256)
-
-	claims := token.Claims.(jwt.MapClaims)
-	claims["exp"] = time.Now().Add(time.Hour).Unix()
-	claims["id"] = user.ID
-	claims["username"] = user.Username
-	claims["admin"] = user.Admin
-	claims["quota"] = user.Quota
-
-	t, err := token.SignedString([]byte(viper.GetString("secret_key")))
-	if err != nil {
-		return errors.E(err, errors.Internal, op)
-	}
-
 	type loginResponce struct {
 		Token string      `json:"token"`
 		User  *users.User `json:"user"`
 	}
 
+	fmt.Println(user.Token)
+
 	res := &loginResponce{
-		Token: t,
+		Token: user.Token,
 		User:  user,
 	}
 	return c.JSON(http.StatusOK, res)

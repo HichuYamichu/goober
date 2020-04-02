@@ -6,8 +6,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/hichuyamichu-me/uploader/errors"
+	"github.com/hichuyamichu-me/uploader/internal/users"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
 )
@@ -72,9 +72,8 @@ func (h *Handler) Upload(c echo.Context) error {
 	}
 	files := form.File["files"]
 
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	sizeLimit := claims["quota"].(float64)
+	user := c.Get("user").(*users.User)
+	sizeLimit := user.Quota
 	sizeTotal := int64(0)
 	for _, file := range files {
 		sizeTotal += file.Size

@@ -34,6 +34,21 @@ func (r Repository) FindByUsername(username string) (*User, error) {
 	return user, nil
 }
 
+// FindByToken finds user by username
+func (r Repository) FindByToken(token string) (*User, error) {
+	const op errors.Op = "users/repository.FindByToken"
+
+	user := &User{}
+	if err := r.db.Where(&User{Token: token}).First(&user).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return nil, errors.E(errors.Errorf("user not found"), errors.NotFound, op)
+		}
+		return nil, errors.E(err, errors.Internal, op)
+	}
+
+	return user, nil
+}
+
 // Find returns all users
 func (r Repository) Find() ([]*User, error) {
 	const op errors.Op = "users/repository.Find"
