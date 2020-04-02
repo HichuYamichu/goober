@@ -1,9 +1,8 @@
 <script>
   import { onMount } from "svelte";
-  import Tabs from "../components/indexTabs.svelte";
+  import { files } from "../store";
   import { api } from "../api";
-
-  let files = [];
+  import Tabs from "../components/indexTabs.svelte";
 
   async function handleUpload(event) {
     const formData = new FormData();
@@ -11,18 +10,20 @@
       formData.append("files", file);
     }
     await api.upload(formData);
-    files = await api.getFiles();
+    files.set(await api.getFiles());
   }
 
-  async function handleDelete(event) {
-    const { fileName } = event.detail;
-    await api.deleteFile(fileName);
-    files = await api.getFiles();
+  async function handlePaste(event) {
+    for (const item of event.clipboardData.items) {
+      console.log(item.type);
+      if (item.type.indexOf("image") != -1) {
+        const formData = new FormData();
+        formData.append("files", item.getAsFile());
+        await api.upload(formData);
+        files.set(await api.getFiles());
+      }
+    }
   }
-
-  onMount(async () => {
-    files = await api.getFiles();
-  });
 </script>
 
 <style>
@@ -33,8 +34,7 @@
 </style>
 
 <main>
-
-  <section class="section">
+  <section on:paste|preventDefault={handlePaste} class="section">
     <div class="container has-text-centered">
       <div class="file is-medium is-primary is-boxed is-centered">
         <label class="file-label">
@@ -56,7 +56,7 @@
   </section>
   <section class="section">
     <div class="container">
-      <Tabs {files} on:remove={handleDelete} />
+      <Tabs />
     </div>
   </section>
 </main>

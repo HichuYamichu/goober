@@ -1,13 +1,7 @@
 <script>
   import PasswordChangeForm from "./forms/passwordChangeForm.svelte";
-  import UsersTable from "./usersTable.svelte";
+  import UsersTable from "./tables/users.svelte";
   import { user } from "../store";
-
-  let userValue;
-
-  const unsubscribe = user.subscribe(user => {
-    userValue = user;
-  });
 
   let activeTab = 0;
 
@@ -37,19 +31,30 @@
         <p class="menu-label">General</p>
         <ul class="menu-list">
           <li>
-            <a on:click|preventDefault={() => handleClick(0)} class="is-active">
+            <a
+              href="javascript:;"
+              on:click|preventDefault={() => handleClick(0)}
+              class="is-active">
               Change password
             </a>
           </li>
           <li>
-            <a on:click|preventDefault={() => handleClick(1)}>Logout</a>
+            <a
+              href="javascript:;"
+              on:click|preventDefault={() => handleClick(1)}>
+              Logout
+            </a>
           </li>
         </ul>
-        {#if userValue.admin}
+        {#if $user.admin}
           <p class="menu-label">Admin</p>
           <ul class="menu-list">
             <li>
-              <a on:click|preventDefault={() => handleClick(2)}>Users</a>
+              <a
+                href="javascript:;"
+                on:click|preventDefault={() => handleClick(2)}>
+                Users
+              </a>
             </li>
           </ul>
         {/if}

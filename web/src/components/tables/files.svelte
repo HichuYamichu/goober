@@ -1,20 +1,22 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { user } from "../store";
+  import { user, files } from "../store";
 
-  const dispatch = createEventDispatcher();
-
-  function handleDelete(fileName) {
-    dispatch("remove", { fileName });
+  async function handleDelete(fileName) {
+    await api.deleteFile(fileName);
+    files.set(await api.getFiles());
   }
 
-  export let files = [];
+  function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return "0 Bytes";
 
-  let userValue;
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
 
-  const unsubscribe = user.subscribe(user => {
-    userValue = user;
-  });
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  }
 </script>
 
 <main>
@@ -38,11 +40,11 @@
       </tr>
     </tfoot>
     <tbody>
-      {#each files as file, i}
+      {#each $files as file, i}
         <tr>
           <th>{i + 1}</th>
           <td>{file.name}</td>
-          <td>{(file.size * 10e-5).toFixed(3)}MB</td>
+          <td>{formatBytes(file.size)}</td>
           <td>{new Date(file.createdAt).toLocaleDateString('pl-PL')}</td>
           <td>
             <button class="button is-small is-success is-inverted">
@@ -54,7 +56,7 @@
             </button>
             <button
               class="button is-small is-danger is-inverted"
-              disabled={!userValue.admin}
+              disabled={!$user.admin}
               on:click={() => handleDelete(file.name)}>
               <span class="icon is-small ">
                 <i class="fas fa-times" />

@@ -2,31 +2,23 @@
   import { user } from "../store";
   import { api } from "../api";
 
+  let username = "";
+  let password = "";
+  let result = "";
+
   async function handleLogin() {
-    const resultEl = document.querySelector("#result");
-
-    const username = document.querySelector("#username").value;
-    const password = document.querySelector("#password").value;
-
     const data = await api.login(username, password);
     if (data.user && data.token) {
       document.cookie = data.token;
       user.set(data.user);
     } else {
-      resultEl.style.color = "red";
-      resultEl.innerHTML = data.message;
+      result = data.message;
     }
   }
 
   async function handleRegister() {
-    const resultEl = document.querySelector("#result");
-
-    const username = document.querySelector("#username").value;
-    const password = document.querySelector("#password").value;
-
     const data = await api.register(username, password);
-    resultEl.style.color = "red";
-    resultEl.innerHTML = data.message;
+    result = data.message;
   }
 
   async function handleKeydown(event) {
@@ -50,9 +42,9 @@
             <div class="field">
               <div class="control">
                 <input
+                  bind:value={username}
                   class="input is-large"
                   type="text"
-                  id="username"
                   placeholder="Your Name" />
               </div>
             </div>
@@ -60,8 +52,8 @@
               <div class="control">
                 <input
                   class="input is-large"
+                  bind:value={password}
                   type="password"
-                  id="password"
                   placeholder="Your Password" />
               </div>
             </div>
@@ -79,7 +71,7 @@
                 </button>
               </div>
             </div>
-            <p id="result" />
+            <p>{result}</p>
           </div>
         </div>
       </div>

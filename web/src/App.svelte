@@ -1,15 +1,25 @@
 <script>
   import "./scss-entrypoint.scss";
+  import { onMount } from "svelte";
+  import { user, files } from "./store";
+  import { api } from "./api";
   import Index from "./views/index.svelte";
   import Auth from "./views/auth.svelte";
-  import { user } from "./store";
 
   user.useSessionStorage();
 
-  let userValue;
+  async function handlePaste(event) {
+    for (const item of event.clipboardData.items) {
+      if (item.type.indexOf("image") != -1) {
+        const formData = new FormData();
+        formData.append("files", item.getAsFile());
+        await api.upload(formData);
+      }
+    }
+  }
 
-  const unsubscribe = user.subscribe(user => {
-    userValue = user;
+  onMount(async () => {
+    files.set(await api.getFiles());
   });
 </script>
 
@@ -26,7 +36,7 @@
 </svelte:head>
 
 <main>
-  {#if userValue.username}
+  {#if $user.username}
     <Index />
   {:else}
     <Auth />

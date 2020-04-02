@@ -50,20 +50,13 @@ func (h *Handler) ChangePass(c echo.Context) error {
 func (h *Handler) ActivateUser(c echo.Context) error {
 	const op errors.Op = "auth/handler.ActivateUser"
 
-	type activateUserPayload struct {
-		ID int `json:"id" validate:"required"`
-	}
-
-	p := &activateUserPayload{}
-	if err := c.Bind(p); err != nil {
+	userIDParam := c.Param("id")
+	userID, err := strconv.Atoi(userIDParam)
+	if err != nil {
 		return errors.E(err, errors.Invalid, op)
 	}
 
-	if err := c.Validate(p); err != nil {
-		return errors.E(err, errors.Invalid, op)
-	}
-
-	err := h.usrServ.ActivateUser(p.ID)
+	err = h.usrServ.ActivateUser(userID)
 	if err != nil {
 		return errors.E(err, errors.Internal, op)
 	}

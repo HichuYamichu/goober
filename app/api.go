@@ -13,12 +13,12 @@ func (a *App) setRoutes(mwService *middleware.MiddlewareService) {
 	filesAPI.POST("", a.uploadHandler.Upload)
 	filesAPI.DELETE("/:name", a.uploadHandler.Delete, mwService.Admin)
 
-	userAPI := api.Group("/user")
+	userAPI := api.Group("/users")
 	userAPI.Use(mwService.LoggedIn)
-	userAPI.GET("/list", a.usersHandler.ListUsers, mwService.Admin)
-	userAPI.POST("/activate", a.usersHandler.ActivateUser, mwService.Admin)
+	userAPI.GET("", a.usersHandler.ListUsers, mwService.Admin)
+	userAPI.GET("/activate/:id", a.usersHandler.ActivateUser, mwService.Admin)
 	userAPI.POST("/password/change", a.usersHandler.ChangePass)
-	userAPI.DELETE("/delete/:id", a.usersHandler.DeleteUser)
+	userAPI.DELETE("/:id", a.usersHandler.DeleteUser)
 
 	authAPI := api.Group("/auth")
 	authAPI.POST("/login", a.authHandler.Login)

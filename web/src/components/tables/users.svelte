@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { api } from "../api";
 
-  export let users = [];
+  let users = [];
 
   async function handleUserActivation(id) {
     await api.activateUser(id);

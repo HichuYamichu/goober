@@ -1,9 +1,8 @@
 <script>
-  import Table from "./filesTable.svelte";
+  import FilesTable from "./tables/files.svelte";
   import Panel from "./adminPanel.svelte";
 
   let activeTab = 0;
-  export let files = [];
 
   function handleClick(idx) {
     const tabs = document.querySelectorAll("li");
@@ -17,16 +16,20 @@
   <div class="tabs is-centered is-medium">
     <ul>
       <li class="is-active">
-        <a on:click|preventDefault={() => handleClick(0)}>Uploads</a>
+        <a href="javascript:;" on:click|preventDefault={() => handleClick(0)}>
+          Uploads
+        </a>
       </li>
       <li>
-        <a on:click|preventDefault={() => handleClick(1)}>Administration</a>
+        <a href="javascript:;" on:click|preventDefault={() => handleClick(1)}>
+          Administration
+        </a>
       </li>
     </ul>
   </div>
   <div>
     {#if activeTab == 0}
-      <Table {files} on:remove />
+      <FilesTable />
     {:else if activeTab == 1}
       <Panel />
     {/if}
