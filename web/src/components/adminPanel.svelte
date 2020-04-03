@@ -1,5 +1,6 @@
 <script>
-  import PasswordChangeForm from "./forms/passwordChangeForm.svelte";
+  import PasswordChangeForm from "./forms/passwordChange.svelte";
+  import RegenerateTokenForm from "./forms/regenerateToken.svelte";
   import UsersTable from "./tables/users.svelte";
   import { user } from "../store";
 
@@ -11,6 +12,24 @@
     tabs[idx].classList.add("is-active");
     activeTab = idx;
   }
+
+  const config = {
+    Name: "Goober",
+    DestinationType: "ImageUploader, FileUploader",
+    RequestType: "POST",
+    RequestURL: `http://${location.hostname}/api/files`,
+    FileFormName: "files",
+    Headers: {
+      Authorization: $user.token
+    },
+    ResponseType: "Text",
+    URL: "$json:files[0].url$",
+    ThumbnailURL: "$json:files[0].url$"
+  };
+  const sharexBlob = new Blob([JSON.stringify(config)], {
+    type: "application/octet-binary"
+  });
+  const shareX = URL.createObjectURL(sharexBlob);
 
   function handleLogout() {
     user.set({});
@@ -42,6 +61,20 @@
             <a
               href="javascript:;"
               on:click|preventDefault={() => handleClick(1)}>
+              Change token
+            </a>
+          </li>
+          <li>
+            <a
+              href="javascript:;"
+              on:click|preventDefault={() => handleClick(2)}>
+              Sharex
+            </a>
+          </li>
+          <li>
+            <a
+              href="javascript:;"
+              on:click|preventDefault={() => handleClick(3)}>
               Logout
             </a>
           </li>
@@ -52,7 +85,7 @@
             <li>
               <a
                 href="javascript:;"
-                on:click|preventDefault={() => handleClick(2)}>
+                on:click|preventDefault={() => handleClick(4)}>
                 Users
               </a>
             </li>
@@ -65,12 +98,23 @@
         {#if activeTab == 0}
           <PasswordChangeForm />
         {:else if activeTab == 1}
+          <RegenerateTokenForm />
+        {:else if activeTab == 2}
+          <div class="has-text-centered">
+            <a
+              href={shareX}
+              download={`${location.hostname}.sxcu`}
+              class="button is-primary is-large">
+              Get ShareX config
+            </a>
+          </div>
+        {:else if activeTab == 3}
           <div class="has-text-centered">
             <button class="button is-primary is-large" on:click={handleLogout}>
               Logout
             </button>
           </div>
-        {:else if activeTab == 2}
+        {:else if activeTab == 4}
           <UsersTable />
         {/if}
       </div>

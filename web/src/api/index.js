@@ -42,6 +42,12 @@ class API {
     return data;
   }
 
+  async regenerateToken() {
+    const res = await this.client.get('/api/users/token');
+    const data = res.json();
+    return data;
+  }
+
   async activateUser(id) {
     const res = await this.client.get(`/api/users/activate/${id}`);
     const data = res.json();

@@ -1,6 +1,7 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { user, files } from "../store";
+  import { user, files } from "../../store";
+  import { api } from "../../api";
 
   async function handleDelete(fileName) {
     await api.deleteFile(fileName);
@@ -20,14 +21,20 @@
 </script>
 
 <main>
-  <table class="table is-fullwidth">
+  <nav class="pagination" role="navigation" aria-label="pagination">
+    <a href="javascript:;" class="pagination-previous is-pulled-left">
+      Previous
+    </a>
+    <a href="javascript:;" class="pagination-next is-pulled-right">Next</a>
+  </nav>
+  <table class="table is-fullwidth is-striped">
     <thead>
       <tr>
         <th>#</th>
         <th>Filename</th>
         <th>Size</th>
         <th>Date added</th>
-        <th>Action</th>
+        <th />
       </tr>
     </thead>
     <tfoot>
@@ -36,32 +43,28 @@
         <th>Filename</th>
         <th>Size</th>
         <th>Date added</th>
-        <th>Action</th>
+        <th />
       </tr>
     </tfoot>
     <tbody>
       {#each $files as file, i}
         <tr>
           <th>{i + 1}</th>
-          <td>{file.name}</td>
-          <td>{formatBytes(file.size)}</td>
-          <td>{new Date(file.createdAt).toLocaleDateString('pl-PL')}</td>
           <td>
-            <button class="button is-small is-success is-inverted">
-              <a class="is-small" download href="/api/download/{file.name}">
-                <span class="icon is-small ">
-                  <i class="fas fa-download" />
-                </span>
-              </a>
-            </button>
-            <button
-              class="button is-small is-danger is-inverted"
-              disabled={!$user.admin}
+            <a href="/files/{file.name}" download>{file.name}</a>
+          </td>
+          <td>{formatBytes(file.size)}</td>
+          <td>{file.createdAt}</td>
+          <td>
+            <a
+              href="javascript:;"
+              class="button is-small is-danger is-outlined"
+              title="Delete album"
               on:click={() => handleDelete(file.name)}>
-              <span class="icon is-small ">
-                <i class="fas fa-times" />
+              <span class="icon is-small">
+                <i class="fa fa-trash" />
               </span>
-            </button>
+            </a>
           </td>
         </tr>
       {:else}
@@ -69,4 +72,10 @@
       {/each}
     </tbody>
   </table>
+  <nav class="pagination" role="navigation" aria-label="pagination">
+    <a href="javascript:;" class="pagination-previous is-pulled-left">
+      Previous
+    </a>
+    <a href="javascript:;" class="pagination-next is-pulled-right">Next</a>
+  </nav>
 </main>

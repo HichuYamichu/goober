@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/hichuyamichu-me/uploader/errors"
 	"github.com/hichuyamichu-me/uploader/internal/users"
@@ -42,21 +41,21 @@ func (h *Handler) FilesInfo(c echo.Context) error {
 	}
 
 	type statusResponce struct {
-		Name      string    `json:"name"`
-		Size      int64     `json:"size"`
-		CreatedAt time.Time `json:"createdAt"`
-		Owner     string    `json:"owner"`
+		Name      string `json:"name"`
+		Size      int64  `json:"size"`
+		CreatedAt string `json:"createdAt"`
+		Owner     string `json:"owner"`
 	}
 
 	res := make([]*statusResponce, len(files))
 	for i, file := range files {
-		fileData := &statusResponce{
+		Uploads := &statusResponce{
 			Name:      file.Name(),
 			Size:      file.Size(),
-			CreatedAt: file.ModTime(),
+			CreatedAt: file.ModTime().Format("2006/01/02 15:04"),
 			Owner:     "",
 		}
-		res[i] = fileData
+		res[i] = Uploads
 	}
 
 	return c.JSON(200, res)
@@ -82,28 +81,34 @@ func (h *Handler) Upload(c echo.Context) error {
 		}
 	}
 
-	type uploadResult struct {
+	type uploads struct {
 		URL  string `json:"url"`
 		Name string `json:"name"`
 		Size int64  `json:"size"`
 	}
 
+	type uploadResult struct {
+		Files   []*uploads `json:"files"`
+		Success bool       `json:"success"`
+	}
+
 	domain := viper.GetString("domain")
-	res := make([]*uploadResult, len(files))
+	upl := make([]*uploads, len(files))
 	for i, file := range files {
 		h.uplServ.Save(file)
-		r := &uploadResult{
-			URL:  fmt.Sprintf("https://%s/api/download/%s", domain, file.Filename),
+		u := &uploads{
+			URL:  fmt.Sprintf("https://%s/files/%s", domain, file.Filename),
 			Name: file.Filename,
 			Size: file.Size,
 		}
-		res[i] = r
+		upl[i] = u
 	}
 
+	res := &uploadResult{Success: true, Files: upl}
 	return c.JSON(http.StatusOK, res)
 }
 
-// Delete reletes specyfied file
+// Delete deletes specyfied file
 func (h *Handler) Delete(c echo.Context) error {
 	const op errors.Op = "upload/handler.Delete"
 

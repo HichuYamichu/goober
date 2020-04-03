@@ -9,7 +9,6 @@
   async function handleLogin() {
     const data = await api.login(username, password);
     if (data.user && data.token) {
-      document.cookie = data.token;
       user.set(data.user);
     } else {
       result = data.message;

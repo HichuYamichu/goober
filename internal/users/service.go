@@ -90,3 +90,9 @@ func (s *Service) DeleteUser(id int) error {
 	user := &User{ID: id}
 	return s.usrRepo.Delete(user)
 }
+
+func (s *Service) UpdateUser(user *User) error {
+	const op errors.Op = "users/service.UpdateUser"
+
+	return s.usrRepo.Update(user)
+}

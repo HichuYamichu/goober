@@ -17,6 +17,7 @@ func (a *App) setRoutes(mwService *middleware.MiddlewareService) {
 	userAPI.Use(mwService.LoggedIn)
 	userAPI.GET("", a.usersHandler.ListUsers, mwService.Admin)
 	userAPI.GET("/activate/:id", a.usersHandler.ActivateUser, mwService.Admin)
+	userAPI.GET("/token", a.usersHandler.ChangeToken)
 	userAPI.POST("/password/change", a.usersHandler.ChangePass)
 	userAPI.DELETE("/:id", a.usersHandler.DeleteUser)
 

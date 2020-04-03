@@ -1,3 +1,11 @@
+import { user } from '../store';
+
+let userValue;
+
+const unsubscribe = user.subscribe(value => {
+  userValue = value;
+});
+
 export class HTTPClient {
   constructor() {
     this.accept = 'application/json';
@@ -8,7 +16,7 @@ export class HTTPClient {
       method: 'GET',
       headers: {
         Accept: this.accept,
-        Authorization: `Bearer ${document.cookie}`
+        Authorization: `Bearer ${userValue.token}`
       }
     });
   }
@@ -16,7 +24,7 @@ export class HTTPClient {
   async post(endpoint, body) {
     const headers = {
       Accept: this.accept,
-      Authorization: `Bearer ${document.cookie}`,
+      Authorization: `Bearer ${userValue.token}`,
       'Content-Type': 'application/json'
     };
     if (body instanceof FormData) {
@@ -30,7 +38,7 @@ export class HTTPClient {
       method: 'DELETE',
       headers: {
         Accept: this.accept,
-        Authorization: `Bearer ${document.cookie}`
+        Authorization: `Bearer ${userValue.token}`
       }
     });
   }

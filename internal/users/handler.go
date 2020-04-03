@@ -48,7 +48,7 @@ func (h *Handler) ChangePass(c echo.Context) error {
 
 // ActivateUser handles activation of user account
 func (h *Handler) ActivateUser(c echo.Context) error {
-	const op errors.Op = "auth/handler.ActivateUser"
+	const op errors.Op = "users/handler.ActivateUser"
 
 	userIDParam := c.Param("id")
 	userID, err := strconv.Atoi(userIDParam)
@@ -66,7 +66,7 @@ func (h *Handler) ActivateUser(c echo.Context) error {
 
 // ListUsers handles user listing
 func (h *Handler) ListUsers(c echo.Context) error {
-	const op errors.Op = "auth/handler.ListUsers"
+	const op errors.Op = "users/handler.ListUsers"
 
 	users, err := h.usrServ.ListUsers()
 	if err != nil {
@@ -78,7 +78,7 @@ func (h *Handler) ListUsers(c echo.Context) error {
 
 // DeleteUser handles user deletion
 func (h *Handler) DeleteUser(c echo.Context) error {
-	const op errors.Op = "auth/handler.DeleteUser"
+	const op errors.Op = "users/handler.DeleteUser"
 
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -92,4 +92,23 @@ func (h *Handler) DeleteUser(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{"message": "user deleted successfully"})
+}
+
+func (h *Handler) ChangeToken(c echo.Context) error {
+	const op errors.Op = "users/handler.ChangeToken"
+
+	user := c.Get("user").(*User)
+
+	token, err := h.usrServ.GenerateToken(user.Username)
+	if err != nil {
+		return errors.E(err, errors.Internal, op)
+	}
+
+	user.Token = token
+	err = h.usrServ.UpdateUser(user)
+	if err != nil {
+		return errors.E(err, op)
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{"token": user.Token})
 }

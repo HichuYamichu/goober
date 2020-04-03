@@ -1,6 +1,5 @@
 <script>
   import "./scss-entrypoint.scss";
-  import { onMount } from "svelte";
   import { user, files } from "./store";
   import { api } from "./api";
   import Index from "./views/index.svelte";
@@ -8,19 +7,19 @@
 
   user.useSessionStorage();
 
+  let uploaded = [];
+
   async function handlePaste(event) {
     for (const item of event.clipboardData.items) {
-      if (item.type.indexOf("image") != -1) {
+      if (item.type.indexOf("image") === 0) {
         const formData = new FormData();
         formData.append("files", item.getAsFile());
-        await api.upload(formData);
+        const res = await api.upload(formData);
+        uploaded = res.files;
+        files.set(await api.getFiles());
       }
     }
   }
-
-  onMount(async () => {
-    files.set(await api.getFiles());
-  });
 </script>
 
 <style>
@@ -35,9 +34,9 @@
   </script>
 </svelte:head>
 
-<main>
+<main on:paste|preventDefault={handlePaste}>
   {#if $user.username}
-    <Index />
+    <Index {uploaded} />
   {:else}
     <Auth />
   {/if}

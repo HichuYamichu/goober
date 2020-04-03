@@ -1,1 +1,3 @@
-### Private upload server
+### Goober
+
+Simple file server written in Go.

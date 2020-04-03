@@ -4,26 +4,21 @@
   import { api } from "../api";
   import Tabs from "../components/indexTabs.svelte";
 
+  export let uploaded = [];
+
   async function handleUpload(event) {
     const formData = new FormData();
     for (const file of event.target.files) {
       formData.append("files", file);
     }
-    await api.upload(formData);
+    const res = await api.upload(formData);
+    uploaded = res.files;
     files.set(await api.getFiles());
   }
 
-  async function handlePaste(event) {
-    for (const item of event.clipboardData.items) {
-      console.log(item.type);
-      if (item.type.indexOf("image") != -1) {
-        const formData = new FormData();
-        formData.append("files", item.getAsFile());
-        await api.upload(formData);
-        files.set(await api.getFiles());
-      }
-    }
-  }
+  onMount(async () => {
+    files.set(await api.getFiles());
+  });
 </script>
 
 <style>
@@ -34,7 +29,7 @@
 </style>
 
 <main>
-  <section on:paste|preventDefault={handlePaste} class="section">
+  <section class="section">
     <div class="container has-text-centered">
       <div class="file is-medium is-primary is-boxed is-centered">
         <label class="file-label">
@@ -53,6 +48,12 @@
         </label>
       </div>
     </div>
+    <p class="has-text-centered">
+      {#each uploaded as { url }}
+        <a href={url}>{url}</a>
+        <br />
+      {/each}
+    </p>
   </section>
   <section class="section">
     <div class="container">
