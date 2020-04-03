@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/hichuyamichu-me/uploader/errors"
-	"github.com/hichuyamichu-me/uploader/internal/users"
+	"github.com/hichuyamichu-me/goober/errors"
+	"github.com/hichuyamichu-me/goober/internal/users"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
 )

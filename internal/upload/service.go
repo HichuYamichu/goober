@@ -7,7 +7,7 @@ import (
 	"mime/multipart"
 	"os"
 
-	"github.com/hichuyamichu-me/uploader/errors"
+	"github.com/hichuyamichu-me/goober/errors"
 	"github.com/spf13/viper"
 )
 

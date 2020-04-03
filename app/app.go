@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hichuyamichu-me/uploader/app/middleware"
-	"github.com/hichuyamichu-me/uploader/db"
-	"github.com/hichuyamichu-me/uploader/internal/auth"
-	"github.com/hichuyamichu-me/uploader/internal/upload"
-	"github.com/hichuyamichu-me/uploader/internal/users"
+	"github.com/hichuyamichu-me/goober/app/middleware"
+	"github.com/hichuyamichu-me/goober/db"
+	"github.com/hichuyamichu-me/goober/internal/auth"
+	"github.com/hichuyamichu-me/goober/internal/upload"
+	"github.com/hichuyamichu-me/goober/internal/users"
 	"github.com/labstack/echo/v4"
 )
 

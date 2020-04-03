@@ -10,7 +10,7 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -o uploader ./main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -o goober ./main.go
 
 FROM node:latest AS node-build
 
@@ -24,9 +24,9 @@ FROM alpine
 
 WORKDIR /uploder
 
-COPY --from=go-build /build/uploader /uploder/
+COPY --from=go-build /build/goober /uploder/
 COPY --from=node-build /build/public/ /uploder/web/public
 
 EXPOSE 9000
 
-CMD ["./uploader", "start"]
+CMD ["./goober", "start"]

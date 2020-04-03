@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/hichuyamichu-me/uploader/errors"
+	"github.com/hichuyamichu-me/goober/errors"
 	"github.com/labstack/echo/v4"
 )
 

@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/hichuyamichu-me/uploader/internal/users"
+	"github.com/hichuyamichu-me/goober/internal/users"
 )
 
 type MiddlewareService struct {

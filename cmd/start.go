@@ -8,14 +8,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/hichuyamichu-me/uploader/app"
+	"github.com/hichuyamichu-me/goober/app"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var startCmd = &cobra.Command{
 	Use:   "start",
-	Short: "starts uploader's http server",
+	Short: "starts goober's http server",
 	Run: func(cmd *cobra.Command, args []string) {
 		app := app.New()
 

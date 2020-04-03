@@ -3,8 +3,8 @@ package cmd
 import (
 	"log"
 
-	"github.com/hichuyamichu-me/uploader/db"
-	"github.com/hichuyamichu-me/uploader/internal/users"
+	"github.com/hichuyamichu-me/goober/db"
+	"github.com/hichuyamichu-me/goober/internal/users"
 	"github.com/spf13/cobra"
 )
 

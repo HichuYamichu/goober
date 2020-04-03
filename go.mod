@@ -1,4 +1,4 @@
-module github.com/hichuyamichu-me/uploader
+module github.com/hichuyamichu-me/goober
 
 go 1.13
 

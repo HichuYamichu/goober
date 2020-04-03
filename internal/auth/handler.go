@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/hichuyamichu-me/uploader/errors"
-	"github.com/hichuyamichu-me/uploader/internal/users"
+	"github.com/hichuyamichu-me/goober/errors"
+	"github.com/hichuyamichu-me/goober/internal/users"
 	"github.com/labstack/echo/v4"
 )
 

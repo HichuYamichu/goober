@@ -3,7 +3,7 @@ package users
 import (
 	"fmt"
 
-	"github.com/hichuyamichu-me/uploader/errors"
+	"github.com/hichuyamichu-me/goober/errors"
 	"github.com/jinzhu/gorm"
 	"github.com/lib/pq"
 )

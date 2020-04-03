@@ -1,6 +1,6 @@
 package app
 
-import "github.com/hichuyamichu-me/uploader/app/middleware"
+import "github.com/hichuyamichu-me/goober/app/middleware"
 
 func (a *App) setRoutes(mwService *middleware.MiddlewareService) {
 	a.router.GET("/files/:name", a.uploadHandler.Download)

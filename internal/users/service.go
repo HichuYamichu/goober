@@ -4,7 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 
-	"github.com/hichuyamichu-me/uploader/errors"
+	"github.com/hichuyamichu-me/goober/errors"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
 )

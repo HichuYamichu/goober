@@ -9,8 +9,8 @@ import (
 
 var (
 	rootCmd = &cobra.Command{
-		Use:   "uploader",
-		Short: "Private upload server",
+		Use:   "goober",
+		Short: "Simple file server",
 	}
 )
 
