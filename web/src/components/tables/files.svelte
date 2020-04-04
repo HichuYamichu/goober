@@ -22,10 +22,8 @@
 
 <main>
   <nav class="pagination" role="navigation" aria-label="pagination">
-    <a href="javascript:;" class="pagination-previous is-pulled-left">
-      Previous
-    </a>
-    <a href="javascript:;" class="pagination-next is-pulled-right">Next</a>
+    <button class="pagination-previous is-pulled-left">Previous</button>
+    <button class="pagination-next is-pulled-right is-primary">Next</button>
   </nav>
   <table class="table is-fullwidth is-striped">
     <thead>
@@ -73,9 +71,7 @@
     </tbody>
   </table>
   <nav class="pagination" role="navigation" aria-label="pagination">
-    <a href="javascript:;" class="pagination-previous is-pulled-left">
-      Previous
-    </a>
-    <a href="javascript:;" class="pagination-next is-pulled-right">Next</a>
+    <button class="pagination-previous is-pulled-left">Previous</button>
+    <button class="pagination-next is-pulled-right">Next</button>
   </nav>
 </main>

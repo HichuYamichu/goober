@@ -4,17 +4,17 @@
 
   let result = "";
 
-  let userValue;
-
-  const unsubscribe = user.subscribe(value => {
-    userValue = value;
-  });
-
   async function handleSubmit(event) {
     const res = await api.regenerateToken();
-    user.set({ ...userValue, token: res.token });
+    user.set({ ...$user, token: res.token });
   }
 </script>
+
+<style>
+  .mg {
+    margin: 1em;
+  }
+</style>
 
 <main>
   <h2 class="subtitle has-text-centered">Change your token</h2>
@@ -31,7 +31,7 @@
       <input
         type="submit"
         value="Regenerate token"
-        class="button is-primary " />
+        class="button is-primary mg" />
     </p>
     <p class="has-text-centered">{result}</p>
   </form>

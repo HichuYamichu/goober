@@ -41,6 +41,10 @@
     margin: auto;
     width: 70%;
   }
+
+  .pd {
+    padding: 3em;
+  }
 </style>
 
 <main>
@@ -100,7 +104,7 @@
         {:else if activeTab == 1}
           <RegenerateTokenForm />
         {:else if activeTab == 2}
-          <div class="has-text-centered">
+          <div class="has-text-centered pd">
             <a
               href={shareX}
               download={`${location.hostname}.sxcu`}
@@ -109,7 +113,7 @@
             </a>
           </div>
         {:else if activeTab == 3}
-          <div class="has-text-centered">
+          <div class="has-text-centered pd">
             <button class="button is-primary is-large" on:click={handleLogout}>
               Logout
             </button>

@@ -1,20 +1,26 @@
 <script>
   import { api } from "../../api";
 
-  async function handleSubmit(event) {
-    const resultEl = document.querySelector("#result");
+  let result = "";
 
+  async function handleSubmit(event) {
     const password = event.target.password.value;
     const passwordConfirm = event.target.passwordConfirm.value;
     if (password !== passwordConfirm) {
-      resultEl.innerHTML = "passwords don't match";
+      result = "passwords don't match";
       return;
     }
 
     const res = await api.changePassword(password);
-    resultEl.innerHTML = res.message;
+    result = res.message;
   }
 </script>
+
+<style>
+  .mg {
+    margin: 1em;
+  }
+</style>
 
 <main>
   <h2 class="subtitle has-text-centered">Change your password</h2>
@@ -37,9 +43,9 @@
       <input
         type="submit"
         value="Set new password"
-        class="button is-primary " />
+        class="button is-primary mg" />
     </p>
-    <p id="result" class="has-text-centered" />
+    <p class="has-text-centered">{result}</p>
   </form>
 
 </main>
