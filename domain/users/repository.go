@@ -20,7 +20,7 @@ func NewRepository(db *gorm.DB) *Repository {
 }
 
 // FindByUsername finds user by username
-func (r Repository) FindByUsername(username string) (*User, error) {
+func (r *Repository) FindByUsername(username string) (*User, error) {
 	const op errors.Op = "users/repository.FindByUsername"
 
 	user := &User{}
@@ -35,7 +35,7 @@ func (r Repository) FindByUsername(username string) (*User, error) {
 }
 
 // FindByToken finds user by username
-func (r Repository) FindByToken(token string) (*User, error) {
+func (r *Repository) FindByToken(token string) (*User, error) {
 	const op errors.Op = "users/repository.FindByToken"
 
 	user := &User{}
@@ -50,7 +50,7 @@ func (r Repository) FindByToken(token string) (*User, error) {
 }
 
 // Find returns all users
-func (r Repository) Find() ([]*User, error) {
+func (r *Repository) Find() ([]*User, error) {
 	const op errors.Op = "users/repository.Find"
 
 	users := []*User{}
@@ -62,7 +62,7 @@ func (r Repository) Find() ([]*User, error) {
 }
 
 // Create saves a user in DB
-func (r Repository) Create(u *User) error {
+func (r *Repository) Create(u *User) error {
 	const op errors.Op = "users/repository.Create"
 
 	if err := r.db.Create(u).Error; err != nil {
@@ -80,7 +80,7 @@ func (r Repository) Create(u *User) error {
 }
 
 // Update updates a user
-func (r Repository) Update(u *User) error {
+func (r *Repository) Update(u *User) error {
 	const op errors.Op = "users/repository.Update"
 
 	if err := r.db.Model(u).Update(u).Error; err != nil {
@@ -91,7 +91,7 @@ func (r Repository) Update(u *User) error {
 }
 
 // Delete deletes a user
-func (r Repository) Delete(u *User) error {
+func (r *Repository) Delete(u *User) error {
 	const op errors.Op = "users/repository.Delete"
 
 	if err := r.db.Delete(u).Error; err != nil {

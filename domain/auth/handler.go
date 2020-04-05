@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/hichuyamichu-me/goober/errors"
-	"github.com/hichuyamichu-me/goober/internal/users"
+	"github.com/hichuyamichu-me/goober/domain/users"
 	"github.com/labstack/echo/v4"
 )
 

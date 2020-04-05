@@ -3,11 +3,13 @@ package upload
 import (
 	"fmt"
 	"net/http"
-	"os"
+	"strconv"
+	"time"
 
+	"github.com/hichuyamichu-me/goober/domain/users"
 	"github.com/hichuyamichu-me/goober/errors"
-	"github.com/hichuyamichu-me/goober/internal/users"
 	"github.com/labstack/echo/v4"
+	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 )
 
@@ -25,40 +27,42 @@ func NewHandler(uplServ *Service) *Handler {
 func (h *Handler) Download(c echo.Context) error {
 	const op errors.Op = "upload/handler.Download"
 
-	fName := c.Param("name")
-	uploadDir := viper.GetString("upload_dir")
-	filePath := fmt.Sprintf("%s/%s", uploadDir, fName)
-	return c.File(filePath)
-}
+	fileID, err := uuid.FromString(c.Param("id"))
+	if err != nil {
+		return errors.E(err, errors.Invalid, op)
+	}
 
-// FilesInfo handles FilesInfo report
-func (h *Handler) FilesInfo(c echo.Context) error {
-	const op errors.Op = "upload/handler.FilesInfo"
-
-	files, err := h.uplServ.GetFileData()
+	file, err := h.uplServ.GetFile(fileID)
 	if err != nil {
 		return errors.E(err, op)
 	}
 
-	type statusResponce struct {
-		Name      string `json:"name"`
-		Size      int64  `json:"size"`
-		CreatedAt string `json:"createdAt"`
-		Owner     string `json:"owner"`
+	f, err := file.Open()
+	if err != nil {
+		return errors.E(err, errors.Internal, op)
+	}
+	defer f.Close()
+
+	http.ServeContent(c.Response(), c.Request(), file.Name, time.Now(), f)
+	return nil
+}
+
+// Files handles file listing
+func (h *Handler) Files(c echo.Context) error {
+	const op errors.Op = "upload/handler.Files"
+
+	pageParam := c.Param("page")
+	page, err := strconv.Atoi(pageParam)
+	if err != nil {
+		return errors.E(err, errors.Invalid, op)
 	}
 
-	res := make([]*statusResponce, len(files))
-	for i, file := range files {
-		Uploads := &statusResponce{
-			Name:      file.Name(),
-			Size:      file.Size(),
-			CreatedAt: file.ModTime().Format("2006/01/02 15:04"),
-			Owner:     "",
-		}
-		res[i] = Uploads
+	files, err := h.uplServ.GetFileData(page)
+	if err != nil {
+		return errors.E(err, op)
 	}
 
-	return c.JSON(200, res)
+	return c.JSON(200, files)
 }
 
 // Upload handles file upload
@@ -95,9 +99,13 @@ func (h *Handler) Upload(c echo.Context) error {
 	domain := viper.GetString("domain")
 	upl := make([]*uploads, len(files))
 	for i, file := range files {
-		h.uplServ.Save(file)
+		fName, err := h.uplServ.Save(file)
+		if err != nil {
+			res := &uploadResult{Success: false, Files: upl}
+			return c.JSON(http.StatusInternalServerError, res)
+		}
 		u := &uploads{
-			URL:  fmt.Sprintf("https://%s/files/%s", domain, file.Filename),
+			URL:  fmt.Sprintf("https://%s/files/%s", domain, fName),
 			Name: file.Filename,
 			Size: file.Size,
 		}
@@ -112,12 +120,28 @@ func (h *Handler) Upload(c echo.Context) error {
 func (h *Handler) Delete(c echo.Context) error {
 	const op errors.Op = "upload/handler.Delete"
 
-	fName := c.Param("name")
-	uploadDir := viper.GetString("upload_dir")
-	filePath := fmt.Sprintf("%s/%s", uploadDir, fName)
-	err := os.Remove(filePath)
-	if err != nil {
-		return errors.E(err, errors.IO, op)
+	type deletePayload struct {
+		ID string `json:"id" validate:"required"`
 	}
+
+	p := &deletePayload{}
+	if err := c.Bind(p); err != nil {
+		return errors.E(err, errors.Invalid, op)
+	}
+
+	if err := c.Validate(p); err != nil {
+		return errors.E(err, errors.Invalid, op)
+	}
+
+	fileID, err := uuid.FromString(p.ID)
+	if err != nil {
+		return errors.E(err, errors.Invalid, op)
+	}
+
+	err = h.uplServ.DeleteFile(fileID)
+	if err != nil {
+		return errors.E(err, errors.Invalid, op)
+	}
+
 	return c.JSON(http.StatusOK, map[string]interface{}{"message": "file deleted successfully"})
 }

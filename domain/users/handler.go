@@ -2,7 +2,8 @@ package users
 
 import (
 	"net/http"
-	"strconv"
+
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/hichuyamichu-me/goober/errors"
 	"github.com/labstack/echo/v4"
@@ -50,8 +51,7 @@ func (h *Handler) ChangePass(c echo.Context) error {
 func (h *Handler) ActivateUser(c echo.Context) error {
 	const op errors.Op = "users/handler.ActivateUser"
 
-	userIDParam := c.Param("id")
-	userID, err := strconv.Atoi(userIDParam)
+	userID, err := uuid.FromString(c.Param("id"))
 	if err != nil {
 		return errors.E(err, errors.Invalid, op)
 	}
@@ -80,13 +80,12 @@ func (h *Handler) ListUsers(c echo.Context) error {
 func (h *Handler) DeleteUser(c echo.Context) error {
 	const op errors.Op = "users/handler.DeleteUser"
 
-	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
+	userID, err := uuid.FromString(c.Param("id"))
 	if err != nil {
 		return errors.E(err, errors.Invalid, op)
 	}
 
-	err = h.usrServ.DeleteUser(id)
+	err = h.usrServ.DeleteUser(userID)
 	if err != nil {
 		return errors.E(err, errors.Internal, op)
 	}

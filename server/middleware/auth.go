@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hichuyamichu-me/goober/domain/users"
 	"github.com/hichuyamichu-me/goober/errors"
-	"github.com/hichuyamichu-me/goober/internal/users"
 	"github.com/labstack/echo/v4"
 )
 
-func (mws *MiddlewareService) LoggedIn(next echo.HandlerFunc) echo.HandlerFunc {
+func (mws *Service) LoggedIn(next echo.HandlerFunc) echo.HandlerFunc {
 	const op errors.Op = "middleware/auth.LoggedIn"
 
 	return func(c echo.Context) error {
@@ -45,7 +45,7 @@ func (mws *MiddlewareService) LoggedIn(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func (mws *MiddlewareService) Admin(next echo.HandlerFunc) echo.HandlerFunc {
+func (mws *Service) Admin(next echo.HandlerFunc) echo.HandlerFunc {
 	const op errors.Op = "middleware/auth.Admin"
 
 	return func(c echo.Context) error {

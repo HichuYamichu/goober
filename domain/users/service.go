@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 
 	"github.com/hichuyamichu-me/goober/errors"
+	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -21,7 +22,7 @@ func NewService(usrRepo *Repository) *Service {
 }
 
 // ChangePassword changes user's password
-func (s *Service) ChangePassword(userID int, pass string) error {
+func (s *Service) ChangePassword(userID uuid.UUID, pass string) error {
 	const op errors.Op = "users/service.ChangePassword"
 
 	hash, err := s.HashPassword(pass)
@@ -67,7 +68,7 @@ func (s *Service) GenerateToken(username string) (string, error) {
 }
 
 // ActivateUser activates user
-func (s *Service) ActivateUser(id int) error {
+func (s *Service) ActivateUser(id uuid.UUID) error {
 	const op errors.Op = "users/service.ActivateUser"
 
 	user := &User{ID: id, Active: true}
@@ -86,7 +87,7 @@ func (s *Service) ListUsers() ([]*User, error) {
 }
 
 // DeleteUser deletes a user
-func (s *Service) DeleteUser(id int) error {
+func (s *Service) DeleteUser(id uuid.UUID) error {
 	user := &User{ID: id}
 	return s.usrRepo.Delete(user)
 }

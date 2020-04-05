@@ -2,7 +2,7 @@ package auth
 
 import (
 	"github.com/hichuyamichu-me/goober/errors"
-	"github.com/hichuyamichu-me/goober/internal/users"
+	"github.com/hichuyamichu-me/goober/domain/users"
 	"golang.org/x/crypto/bcrypt"
 )
 

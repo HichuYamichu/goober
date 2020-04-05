@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/hichuyamichu-me/goober/app"
+	"github.com/hichuyamichu-me/goober/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -17,7 +17,7 @@ var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "starts goober's http server",
 	Run: func(cmd *cobra.Command, args []string) {
-		app := app.New()
+		server := server.New()
 
 		go func() {
 			done := make(chan os.Signal, 1)
@@ -25,11 +25,11 @@ var startCmd = &cobra.Command{
 			<-done
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer cancel()
-			app.Shutdown(ctx)
+			server.Shutdown(ctx)
 		}()
 
 		host := viper.GetString("app_host")
 		port := viper.GetString("app_port")
-		log.Fatal(app.Start(host, port))
+		log.Fatal(server.Start(host, port))
 	},
 }
