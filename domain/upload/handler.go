@@ -43,6 +43,8 @@ func (h *Handler) Download(c echo.Context) error {
 	}
 	defer f.Close()
 
+	headerVal := fmt.Sprintf("attachment; filename=%s", file.Name)
+	c.Response().Header().Set("Content-Disposition", headerVal)
 	http.ServeContent(c.Response(), c.Request(), file.Name, time.Now(), f)
 	return nil
 }
@@ -126,6 +128,7 @@ func (h *Handler) Delete(c echo.Context) error {
 
 	p := &deletePayload{}
 	if err := c.Bind(p); err != nil {
+		fmt.Println(err)
 		return errors.E(err, errors.Invalid, op)
 	}
 

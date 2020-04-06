@@ -22,7 +22,7 @@ func (r *Repository) Find(skip int) ([]*File, error) {
 	const op errors.Op = "upload/repository.Find"
 
 	files := []*File{}
-	if err := r.db.Limit(10).Offset(skip).Find(&files).Error; err != nil {
+	if err := r.db.Limit(10).Offset(skip).Order("created_at DESC").Find(&files).Error; err != nil {
 		return nil, errors.E(err, errors.Internal, op)
 	}
 

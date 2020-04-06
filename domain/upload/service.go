@@ -22,9 +22,6 @@ func NewService(fileRepo *Repository) *Service {
 	return &Service{fileRepo: fileRepo}
 }
 
-type e struct {
-}
-
 func (s *Service) GetFile(id uuid.UUID) (*File, error) {
 	const op errors.Op = "upload/service.GetFile"
 
@@ -45,7 +42,7 @@ func (s *Service) Save(file *multipart.FileHeader) (string, error) {
 	}
 	defer src.Close()
 
-	fileEntity := &File{Name: file.Filename, Size: file.Size, CreatedAt: time.Now()}
+	fileEntity := &File{Name: file.Filename, Size: file.Size, CreatedAt: time.Now().Unix()}
 	err = s.fileRepo.Create(fileEntity)
 	if err != nil {
 		return "", errors.E(err, op)

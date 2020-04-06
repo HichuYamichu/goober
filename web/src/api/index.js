@@ -1,23 +1,30 @@
 import { HTTPClient } from './client';
+import { page } from '../store';
+
+let pageValue;
+
+page.subscribe((value) => {
+  pageValue = value;
+});
 
 class API {
   constructor() {
     this.client = new HTTPClient();
   }
   async upload(file) {
-    const res = await this.client.post('/api/files', file);
+    const res = await this.client.post('/api/uploads', file);
     const data = res.json();
     return data;
   }
 
   async getFiles() {
-    const res = await this.client.get('/api/files');
+    const res = await this.client.get(`/api/uploads/${pageValue}`);
     const data = res.json();
     return data;
   }
 
-  async deleteFile(filename) {
-    const res = await this.client.delete(`/api/files/${filename}`);
+  async deleteFile(id) {
+    const res = await this.client.delete('/api/uploads', JSON.stringify({ id }));
     const data = res.json();
     return data;
   }

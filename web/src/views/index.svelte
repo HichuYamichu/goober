@@ -4,15 +4,12 @@
   import { api } from "../api";
   import Tabs from "../components/indexTabs.svelte";
 
-  export let uploaded = [];
-
   async function handleUpload(event) {
     const formData = new FormData();
     for (const file of event.target.files) {
       formData.append("files", file);
     }
-    const res = await api.upload(formData);
-    uploaded = res.files;
+    await api.upload(formData);
     files.set(await api.getFiles());
   }
 
@@ -26,10 +23,14 @@
     padding-left: 10em !important;
     padding-right: 10em !important;
   }
+
+  .no-pb-bot {
+    padding-bottom: 0em !important;
+  }
 </style>
 
 <main>
-  <section class="section">
+  <section class="section no-pb-bot">
     <div class="container has-text-centered">
       <div class="file is-medium is-primary is-boxed is-centered">
         <label class="file-label">
@@ -48,12 +49,6 @@
         </label>
       </div>
     </div>
-    <p class="has-text-centered">
-      {#each uploaded as { url }}
-        <a href={url}>{url}</a>
-        <br />
-      {/each}
-    </p>
   </section>
   <section class="section">
     <div class="container">

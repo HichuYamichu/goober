@@ -12,17 +12,18 @@ const createWritableStore = (key, startValue) => {
         set(JSON.parse(json));
       }
 
-      subscribe(current => {
+      subscribe((current) => {
         sessionStorage.setItem(key, JSON.stringify(current));
       });
-    }
+    },
   };
 };
 
 export const user = createWritableStore('user', {
   username: '',
   quota: 0,
-  admin: false
+  admin: false,
 });
 
-export const files = createWritableStore('files', []);
+export const files = writable([]);
+export const page = writable(0);

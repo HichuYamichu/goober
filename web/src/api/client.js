@@ -2,30 +2,30 @@ import { user } from '../store';
 
 let userValue;
 
-const unsubscribe = user.subscribe(value => {
+user.subscribe((value) => {
   userValue = value;
 });
 
 export class HTTPClient {
   constructor() {
-    this.accept = 'application/json';
+    this.json = 'application/json';
   }
 
   async get(endpoint) {
     return await fetch(endpoint, {
       method: 'GET',
       headers: {
-        Accept: this.accept,
-        Authorization: `Bearer ${userValue.token}`
-      }
+        Accept: this.json,
+        token: userValue.token,
+      },
     });
   }
 
   async post(endpoint, body) {
     const headers = {
-      Accept: this.accept,
-      Authorization: `Bearer ${userValue.token}`,
-      'Content-Type': 'application/json'
+      Accept: this.json,
+      token: userValue.token,
+      'Content-Type': this.json,
     };
     if (body instanceof FormData) {
       delete headers['Content-Type'];
@@ -33,13 +33,15 @@ export class HTTPClient {
     return await fetch(endpoint, { method: 'POST', headers, body });
   }
 
-  async delete(endpoint) {
+  async delete(endpoint, body) {
     return await fetch(endpoint, {
       method: 'DELETE',
+      body,
       headers: {
-        Accept: this.accept,
-        Authorization: `Bearer ${userValue.token}`
-      }
+        Accept: this.json,
+        token: userValue.token,
+        'Content-Type': this.json,
+      },
     });
   }
 }

@@ -7,15 +7,12 @@
 
   user.useSessionStorage();
 
-  let uploaded = [];
-
   async function handlePaste(event) {
     for (const item of event.clipboardData.items) {
       if (item.type.indexOf("image") === 0) {
         const formData = new FormData();
         formData.append("files", item.getAsFile());
-        const res = await api.upload(formData);
-        uploaded = res.files;
+        await api.upload(formData);
         files.set(await api.getFiles());
       }
     }
@@ -36,7 +33,7 @@
 
 <main on:paste|preventDefault={handlePaste}>
   {#if $user.username}
-    <Index {uploaded} />
+    <Index />
   {:else}
     <Auth />
   {/if}

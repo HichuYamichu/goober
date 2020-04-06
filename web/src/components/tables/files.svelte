@@ -1,10 +1,21 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { user, files } from "../../store";
+  import { user, files, page } from "../../store";
   import { api } from "../../api";
+  import moment from "moment";
 
-  async function handleDelete(fileName) {
-    await api.deleteFile(fileName);
+  async function handleDelete(id) {
+    await api.deleteFile(id);
+    files.set(await api.getFiles());
+  }
+
+  async function next() {
+    page.update(n => n + 1);
+    files.set(await api.getFiles());
+  }
+
+  async function prev() {
+    page.update(n => n - 1);
     files.set(await api.getFiles());
   }
 
@@ -20,11 +31,11 @@
   }
 </script>
 
+<style>
+
+</style>
+
 <main>
-  <nav class="pagination" role="navigation" aria-label="pagination">
-    <button class="pagination-previous is-pulled-left">Previous</button>
-    <button class="pagination-next is-pulled-right is-primary">Next</button>
-  </nav>
   <table class="table is-fullwidth is-striped">
     <thead>
       <tr>
@@ -48,17 +59,17 @@
       {#each $files as file, i}
         <tr>
           <th>{i + 1}</th>
-          <td>
-            <a href="/files/{file.name}" download>{file.name}</a>
+          <td width="60%" class="fileName">
+            <a href="/files/{file.id}" download>{file.name}</a>
           </td>
           <td>{formatBytes(file.size)}</td>
-          <td>{file.createdAt}</td>
+          <td>{moment.unix(file.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
           <td>
             <a
               href="javascript:;"
               class="button is-small is-danger is-outlined"
               title="Delete album"
-              on:click={() => handleDelete(file.name)}>
+              on:click={() => handleDelete(file.id)}>
               <span class="icon is-small">
                 <i class="fa fa-trash" />
               </span>
@@ -71,7 +82,11 @@
     </tbody>
   </table>
   <nav class="pagination" role="navigation" aria-label="pagination">
-    <button class="pagination-previous is-pulled-left">Previous</button>
-    <button class="pagination-next is-pulled-right">Next</button>
+    <button class="pagination-previous is-pulled-left" on:click={prev}>
+      Previous
+    </button>
+    <button class="pagination-next is-pulled-right is-primary" on:click={next}>
+      Next
+    </button>
   </nav>
 </main>

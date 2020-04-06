@@ -47,9 +47,7 @@ func New() *Server {
 		uploadHandler:     uploadHandler,
 		middlewareService: mwService,
 	}
-
 	server.setRoutes()
-
 	return server
 }
 

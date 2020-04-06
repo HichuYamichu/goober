@@ -20,7 +20,7 @@
     RequestURL: `http://${location.hostname}/api/files`,
     FileFormName: "files",
     Headers: {
-      Authorization: $user.token
+      token: $user.token
     },
     ResponseType: "Text",
     URL: "$json:files[0].url$",

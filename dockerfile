@@ -18,7 +18,9 @@ WORKDIR /build
 
 COPY ./web .
 
-RUN yarn && yarn build
+RUN curl -L https://unpkg.com/@pnpm/self-installer | node \
+&& pnpm install \
+&& pnpm run build
 
 FROM alpine
 
