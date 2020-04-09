@@ -1,8 +1,6 @@
 package users
 
 import (
-	"fmt"
-
 	"github.com/hichuyamichu-me/goober/errors"
 	"github.com/jinzhu/gorm"
 	"github.com/lib/pq"
@@ -68,7 +66,6 @@ func (r *Repository) Create(u *User) error {
 	if err := r.db.Create(u).Error; err != nil {
 		e, ok := err.(*pq.Error)
 		if ok {
-			fmt.Println(e.Code)
 			if e.Code == "23505" {
 				return errors.E(err, errors.Invalid, op)
 			}

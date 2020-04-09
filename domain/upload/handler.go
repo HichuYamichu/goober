@@ -128,7 +128,6 @@ func (h *Handler) Delete(c echo.Context) error {
 
 	p := &deletePayload{}
 	if err := c.Bind(p); err != nil {
-		fmt.Println(err)
 		return errors.E(err, errors.Invalid, op)
 	}
 

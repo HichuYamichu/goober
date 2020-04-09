@@ -1,11 +1,10 @@
 package auth
 
 import (
-	"fmt"
 	"net/http"
 
-	"github.com/hichuyamichu-me/goober/errors"
 	"github.com/hichuyamichu-me/goober/domain/users"
+	"github.com/hichuyamichu-me/goober/errors"
 	"github.com/labstack/echo/v4"
 )
 
@@ -52,8 +51,6 @@ func (h *Handler) Login(c echo.Context) error {
 		Token string      `json:"token"`
 		User  *users.User `json:"user"`
 	}
-
-	fmt.Println(user.Token)
 
 	res := &loginResponce{
 		Token: user.Token,
