@@ -6,7 +6,7 @@ import (
 )
 
 // ServeSPA middleware for serving spa
-func (mws *Service) ServeSPA() echo.MiddlewareFunc {
+func ServeSPA() echo.MiddlewareFunc {
 	return middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: middleware.DefaultSkipper,
 		Root:    "web/public/",

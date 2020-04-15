@@ -23,7 +23,7 @@ func (file *File) BeforeCreate(scope *gorm.Scope) error {
 }
 
 func (file *File) Open() (*os.File, error) {
-	uploadDir := viper.GetString("upload_dir")
+	uploadDir := viper.GetString("goober.upload_dir")
 	filePath := fmt.Sprintf("%s/%s", uploadDir, file.ID)
 	return os.Open(filePath)
 }

@@ -48,7 +48,7 @@ func (s *Service) Save(file *multipart.FileHeader) (string, error) {
 		return "", errors.E(err, op)
 	}
 
-	uploadDir := viper.GetString("upload_dir")
+	uploadDir := viper.GetString("goober.upload_dir")
 	filePath := fmt.Sprintf("%s/%s", uploadDir, fileEntity.ID)
 	dst, err := os.Create(filePath)
 	if err != nil {
@@ -84,7 +84,7 @@ func (s *Service) DeleteFile(id uuid.UUID) error {
 		return errors.E(err, op)
 	}
 
-	uploadDir := viper.GetString("upload_dir")
+	uploadDir := viper.GetString("goober.upload_dir")
 	filePath := fmt.Sprintf("%s/%s", uploadDir, id)
 	err = os.Remove(filePath)
 	if err != nil {

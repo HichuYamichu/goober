@@ -28,5 +28,4 @@ func init() {
 	}
 
 	rootCmd.AddCommand(startCmd)
-	rootCmd.AddCommand(migrateCmd)
 }

@@ -10,11 +10,11 @@ import (
 )
 
 func Connect() *gorm.DB {
-	dbHost := viper.GetString("db_host")
-	dbPort := viper.GetString("db_port")
-	dbUser := viper.GetString("db_user")
-	dbName := viper.GetString("db_name")
-	dbPass := viper.GetString("db_pass")
+	dbHost := viper.GetString("postgres.host")
+	dbPort := viper.GetString("postgres.port")
+	dbUser := viper.GetString("postgres.user")
+	dbName := viper.GetString("postgres.name")
+	dbPass := viper.GetString("postgres.pass")
 	connStr := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", dbHost, dbPort, dbUser, dbName, dbPass)
 	db, err := gorm.Open("postgres", connStr)
 	if err != nil {

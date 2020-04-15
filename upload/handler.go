@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hichuyamichu-me/goober/domain/users"
 	"github.com/hichuyamichu-me/goober/errors"
 	"github.com/labstack/echo/v4"
 	uuid "github.com/satori/go.uuid"
@@ -77,16 +76,6 @@ func (h *Handler) Upload(c echo.Context) error {
 	}
 	files := form.File["files"]
 
-	user := c.Get("user").(*users.User)
-	sizeLimit := user.Quota
-	sizeTotal := int64(0)
-	for _, file := range files {
-		sizeTotal += file.Size
-		if sizeTotal > int64(sizeLimit) {
-			return echo.NewHTTPError(http.StatusRequestEntityTooLarge)
-		}
-	}
-
 	type uploads struct {
 		URL  string `json:"url"`
 		Name string `json:"name"`
@@ -98,7 +87,7 @@ func (h *Handler) Upload(c echo.Context) error {
 		Success bool       `json:"success"`
 	}
 
-	domain := viper.GetString("domain")
+	domain := viper.GetString("goober.domain")
 	upl := make([]*uploads, len(files))
 	for i, file := range files {
 		fName, err := h.uplServ.Save(file)
