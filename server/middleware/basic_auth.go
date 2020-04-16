@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"crypto/subtle"
-	"fmt"
 	"strings"
 
 	"github.com/hichuyamichu-me/goober/errors"
@@ -17,7 +16,10 @@ func BasicAuth() echo.MiddlewareFunc {
 
 	return middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
 		users := viper.GetStringSlice("goober.admin")
-		fmt.Println(users)
+		if len(users) == 0 {
+			return true, nil
+		}
+
 		for _, user := range users {
 			split := strings.Split(user, ":")
 			if len(split) != 2 {

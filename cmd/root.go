@@ -21,6 +21,8 @@ func Execute() error {
 func init() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
+	viper.AddConfigPath("/etc/goober/")
+	viper.AddConfigPath("$HOME/.goober")
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
 	if err != nil {

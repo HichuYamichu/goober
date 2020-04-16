@@ -6,8 +6,7 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-// newRouter creates new preconfigured router
-func newRouter() *echo.Echo {
+func router() *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
 	e.HTTPErrorHandler = httpErrorHandler

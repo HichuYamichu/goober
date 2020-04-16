@@ -25,7 +25,7 @@ func New() *Server {
 	uploadHandler := upload.NewHandler(uploadService)
 
 	server := &Server{
-		router:        newRouter(),
+		router:        router(),
 		uploadHandler: uploadHandler,
 	}
 	server.setRoutes()
@@ -35,6 +35,7 @@ func New() *Server {
 func (a *Server) setRoutes() {
 	spa := middleware.ServeSPA()
 	jwt := middleware.JWT()
+	issuer := middleware.ISS
 	basicAuth := middleware.BasicAuth()
 	parsePerms := middleware.ParsePermissions
 	canRead := middleware.CanRead
@@ -43,12 +44,12 @@ func (a *Server) setRoutes() {
 
 	a.router.GET("/files/:id", a.uploadHandler.Download)
 
-	api := a.router.Group("/api", jwt, parsePerms)
+	api := a.router.Group("/api", jwt, issuer, parsePerms)
 
-	filesAPI := api.Group("/uploads")
-	filesAPI.GET("/:page", a.uploadHandler.Files, canRead)
-	filesAPI.POST("", a.uploadHandler.Upload, canWrite)
-	filesAPI.DELETE("", a.uploadHandler.Delete, canDelete)
+	uploadsAPI := api.Group("/uploads")
+	uploadsAPI.GET("/:page", a.uploadHandler.Files, canRead)
+	uploadsAPI.POST("", a.uploadHandler.Upload, canWrite)
+	uploadsAPI.DELETE("", a.uploadHandler.Delete, canDelete)
 
 	frontend := a.router.Group("/")
 	frontend.Use(basicAuth)
