@@ -7,3 +7,5 @@ node_modules/
 .devcontainer
 .DS_Store
 .log
+
+*.db

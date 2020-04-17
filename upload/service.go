@@ -66,7 +66,7 @@ func (s *Service) Save(file *multipart.FileHeader) (string, error) {
 func (s *Service) GetFileData(page int) ([]*File, error) {
 	const op errors.Op = "upload/service.GetFileData"
 
-	skip := page * 10
+	skip := page * 25
 	files, err := s.fileRepo.Find(skip)
 	if err != nil {
 		return nil, errors.E(err, op)
