@@ -87,7 +87,7 @@ func (h *Handler) Upload(c echo.Context) error {
 		Success bool       `json:"success"`
 	}
 
-	domain := viper.GetString("goober.domain")
+	domain := viper.GetString("domain")
 	upl := make([]*uploads, len(files))
 	for i, file := range files {
 		fName, err := h.uplServ.Save(file)

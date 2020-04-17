@@ -4,7 +4,6 @@ import (
 	"crypto/subtle"
 	"strings"
 
-	"github.com/hichuyamichu-me/goober/errors"
 	"github.com/spf13/viper"
 
 	"github.com/labstack/echo/v4"
@@ -12,24 +11,20 @@ import (
 )
 
 func BasicAuth() echo.MiddlewareFunc {
-	const op errors.Op = "middleware/basic_auth.BasicAuth"
+	skipper := func(echo.Context) bool { return !viper.IsSet("admin") }
 
-	return middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
-		users := viper.GetStringSlice("goober.admin")
-		if len(users) == 0 {
-			return true, nil
-		}
-
-		for _, user := range users {
-			split := strings.Split(user, ":")
-			if len(split) != 2 {
-				return false, errors.E(op, errors.Internal)
+	return middleware.BasicAuthWithConfig(middleware.BasicAuthConfig{
+		Skipper: skipper,
+		Validator: func(username, password string, c echo.Context) (bool, error) {
+			users := viper.GetStringSlice("admin")
+			for _, user := range users {
+				split := strings.Split(user, ":")
+				if subtle.ConstantTimeCompare([]byte(username), []byte(split[0])) == 1 &&
+					subtle.ConstantTimeCompare([]byte(password), []byte(split[1])) == 1 {
+					return true, nil
+				}
 			}
-			if subtle.ConstantTimeCompare([]byte(username), []byte(split[0])) == 1 &&
-				subtle.ConstantTimeCompare([]byte(password), []byte(split[1])) == 1 {
-				return true, nil
-			}
-		}
-		return false, nil
+			return false, nil
+		},
 	})
 }

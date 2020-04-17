@@ -8,7 +8,7 @@ import (
 
 // ServeSPA middleware for serving spa
 func ServeSPA() echo.MiddlewareFunc {
-	skipper := func(echo.Context) bool { return !viper.GetBool("goober.frontend") }
+	skipper := func(echo.Context) bool { return !viper.GetBool("frontend") }
 	return middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: skipper,
 		Root:    "web/public/",

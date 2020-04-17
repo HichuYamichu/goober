@@ -12,6 +12,10 @@ import (
 )
 
 func ParsePermissions(next echo.HandlerFunc) echo.HandlerFunc {
+	if !viper.IsSet("jwt") || !viper.IsSet("jwt.roles") {
+		return func(c echo.Context) error { return next(c) }
+	}
+
 	return func(c echo.Context) error {
 		user := c.Get("user").(*jwt.Token)
 		claims := user.Claims.(*jwtCustomClaims)
@@ -19,7 +23,7 @@ func ParsePermissions(next echo.HandlerFunc) echo.HandlerFunc {
 		userRoles := claims.Roles
 
 		for _, userRole := range userRoles {
-			role := viper.GetString(fmt.Sprintf("goober.roles.%s", userRole))
+			role := viper.GetString(fmt.Sprintf("roles.%s", userRole))
 			canRead := strings.Contains(role, "r")
 			if canRead {
 				c.Set("read", true)
@@ -46,6 +50,10 @@ func ParsePermissions(next echo.HandlerFunc) echo.HandlerFunc {
 func CanRead(next echo.HandlerFunc) echo.HandlerFunc {
 	const op errors.Op = "middleware/perms.CanRead"
 
+	if !viper.IsSet("jwt") || !viper.IsSet("jwt.roles") {
+		return func(c echo.Context) error { return next(c) }
+	}
+
 	return func(c echo.Context) error {
 		canRead := c.Get("read").(bool)
 		if !canRead {
@@ -62,6 +70,10 @@ func CanRead(next echo.HandlerFunc) echo.HandlerFunc {
 func CanWrite(next echo.HandlerFunc) echo.HandlerFunc {
 	const op errors.Op = "middleware/perms.CanWrite"
 
+	if !viper.IsSet("jwt") || !viper.IsSet("jwt.roles") {
+		return func(c echo.Context) error { return next(c) }
+	}
+
 	return func(c echo.Context) error {
 		canWrite := c.Get("write").(bool)
 		if !canWrite {
@@ -77,6 +89,10 @@ func CanWrite(next echo.HandlerFunc) echo.HandlerFunc {
 
 func CanDelete(next echo.HandlerFunc) echo.HandlerFunc {
 	const op errors.Op = "middleware/perms.CanDelete"
+
+	if !viper.IsSet("jwt") || !viper.IsSet("jwt.roles") {
+		return func(c echo.Context) error { return next(c) }
+	}
 
 	return func(c echo.Context) error {
 		canDelete := c.Get("delete").(bool)

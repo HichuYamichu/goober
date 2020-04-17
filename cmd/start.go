@@ -28,8 +28,8 @@ var startCmd = &cobra.Command{
 			server.Shutdown(ctx)
 		}()
 
-		host := viper.GetString("goober.host")
-		port := viper.GetString("goober.port")
+		host := viper.GetString("host")
+		port := viper.GetString("port")
 		log.Fatal(server.Start(host, port))
 	},
 }
