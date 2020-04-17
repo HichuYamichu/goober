@@ -31,35 +31,18 @@ func init() {
 		log.Fatalf("error reading config: %s", err)
 	}
 
-	applyDefaultConfig()
+	viper.SetDefault("host", "localhost")
+	viper.SetDefault("port", "3000")
+	viper.SetDefault("domain", fmt.Sprintf("%s:%s", viper.Get("host"), viper.Get("port")))
+	viper.SetDefault("upload_dir", "./data")
+	viper.SetDefault("frontend", true)
+
 	err = verifyConfig()
 	if err != nil {
 		log.Fatalf("error validating config: %s", err)
 	}
 
 	rootCmd.AddCommand(startCmd)
-}
-
-func applyDefaultConfig() {
-	if !viper.IsSet("host") {
-		viper.Set("host", "localhost")
-	}
-
-	if !viper.IsSet("port") {
-		viper.Set("port", "3000")
-	}
-
-	if !viper.IsSet("domain") {
-		viper.Set("domain", fmt.Sprintf("%s:%s", viper.Get("host"), viper.Get("port")))
-	}
-
-	if !viper.IsSet("upload_dir") {
-		viper.Set("upload_dir", "./data")
-	}
-
-	if !viper.IsSet("frontend") {
-		viper.Set("frontend", true)
-	}
 }
 
 func verifyConfig() error {
