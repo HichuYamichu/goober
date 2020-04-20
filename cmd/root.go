@@ -36,6 +36,8 @@ func init() {
 	viper.SetDefault("domain", fmt.Sprintf("%s:%s", viper.Get("host"), viper.Get("port")))
 	viper.SetDefault("upload_dir", "./data")
 	viper.SetDefault("frontend", true)
+	viper.SetDefault("skip_serving_auth", false)
+	viper.SetDefault("skip_frontend_auth", false)
 
 	err = verifyConfig()
 	if err != nil {
@@ -43,15 +45,20 @@ func init() {
 	}
 
 	rootCmd.AddCommand(startCmd)
+	rootCmd.AddCommand(migrateCmd)
 }
 
 func verifyConfig() error {
+	if viper.IsSet("admin") && viper.IsSet("jwt") {
+		return fmt.Errorf("jwt and config users enabled at once")
+	}
+
 	if viper.IsSet("admin") {
 		users := viper.GetStringSlice("admin")
 		for _, user := range users {
 			split := strings.Split(user, ":")
-			if len(split) != 2 {
-				return fmt.Errorf("admin value must be of format username:password")
+			if len(split) < 2 {
+				return fmt.Errorf("admin value must be of format username:password:role")
 			}
 		}
 	}
@@ -62,6 +69,16 @@ func verifyConfig() error {
 		}
 		if !viper.IsSet("jwt.key") {
 			return fmt.Errorf("jwt.key must be set when jwt is enabled")
+		}
+	}
+
+	if viper.IsSet("roles") {
+		roles := viper.GetStringSlice("roles")
+		for _, role := range roles {
+			split := strings.Split(role, ":")
+			if len(split) != 2 {
+				return fmt.Errorf("role value must be of format roleName:permissions")
+			}
 		}
 	}
 

@@ -37,23 +37,20 @@ func (a *Server) setRoutes() {
 	jwt := middleware.JWT()
 	issuer := middleware.ISS
 	basicAuth := middleware.BasicAuth()
-	parsePerms := middleware.ParsePermissions
 	canRead := middleware.CanRead
 	canWrite := middleware.CanWrite
 	canDelete := middleware.CanDelete
 
-	a.router.GET("/files/:id", a.uploadHandler.Download)
+	a.router.Use(jwt, issuer, basicAuth)
+	a.router.GET("/files/:id", a.uploadHandler.Download, canRead)
 
-	api := a.router.Group("/api", jwt, issuer, parsePerms)
-
+	api := a.router.Group("/api")
 	uploadsAPI := api.Group("/uploads")
 	uploadsAPI.GET("/:page", a.uploadHandler.Files, canRead)
 	uploadsAPI.POST("", a.uploadHandler.Upload, canWrite)
 	uploadsAPI.DELETE("", a.uploadHandler.Delete, canDelete)
 
-	frontend := a.router.Group("/")
-	frontend.Use(basicAuth)
-	frontend.Use(spa)
+	a.router.Use(spa)
 }
 
 // Shutdown shuts down the server

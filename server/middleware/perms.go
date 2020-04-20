@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -11,98 +10,123 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func ParsePermissions(next echo.HandlerFunc) echo.HandlerFunc {
-	if !viper.IsSet("jwt") || !viper.IsSet("jwt.roles") {
-		return func(c echo.Context) error { return next(c) }
+func CanRead(next echo.HandlerFunc) echo.HandlerFunc {
+	skip := func(c echo.Context) error { return next(c) }
+	noAuth := !viper.IsSet("jwt") && !viper.IsSet("admin")
+	noRoleCheck := !viper.IsSet("roles")
+	if noAuth || noRoleCheck {
+		return skip
 	}
 
 	return func(c echo.Context) error {
-		user := c.Get("user").(*jwt.Token)
-		claims := user.Claims.(*jwtCustomClaims)
-
-		userRoles := claims.Roles
-
-		for _, userRole := range userRoles {
-			role := viper.GetString(fmt.Sprintf("roles.%s", userRole))
-			canRead := strings.Contains(role, "r")
-			if canRead {
-				c.Set("read", true)
-			}
-
-			canWrite := strings.Contains(role, "w")
-			if canWrite {
-				c.Set("write", true)
-			}
-
-			canDelete := strings.Contains(role, "d")
-			if canDelete {
-				c.Set("delete", true)
-			}
+		if pathSkip(c.Path()) {
+			return next(c)
 		}
 
-		if err := next(c); err != nil {
-			c.Error(err)
-		}
-		return nil
+		return canRead(c, next)
 	}
 }
 
-func CanRead(next echo.HandlerFunc) echo.HandlerFunc {
-	const op errors.Op = "middleware/perms.CanRead"
+func canRead(c echo.Context, next echo.HandlerFunc) error {
+	const op errors.Op = "middleware/perms.canRead"
 
-	if !viper.IsSet("jwt") || !viper.IsSet("jwt.roles") {
-		return func(c echo.Context) error { return next(c) }
+	userPerms := getUserPerms(c)
+	canRead := strings.Contains(userPerms, "r")
+	if !canRead {
+		return errors.E(errors.Authentication, op)
 	}
 
-	return func(c echo.Context) error {
-		canRead := c.Get("read").(bool)
-		if !canRead {
-			return errors.E(op, errors.Authentication)
-		}
-
-		if err := next(c); err != nil {
-			errors.E(err, op)
-		}
-		return nil
+	if err := next(c); err != nil {
+		errors.E(err, op)
 	}
+	return nil
 }
 
 func CanWrite(next echo.HandlerFunc) echo.HandlerFunc {
-	const op errors.Op = "middleware/perms.CanWrite"
-
-	if !viper.IsSet("jwt") || !viper.IsSet("jwt.roles") {
-		return func(c echo.Context) error { return next(c) }
+	skip := func(c echo.Context) error { return next(c) }
+	noAuth := !viper.IsSet("jwt") && !viper.IsSet("admin")
+	noRoleCheck := !viper.IsSet("roles")
+	if noAuth || noRoleCheck {
+		return skip
 	}
 
 	return func(c echo.Context) error {
-		canWrite := c.Get("write").(bool)
-		if !canWrite {
-			return errors.E(op, errors.Authentication)
+		if pathSkip(c.Path()) {
+			return next(c)
 		}
 
-		if err := next(c); err != nil {
-			errors.E(err, op)
-		}
-		return nil
+		return canWrite(c, next)
 	}
 }
 
-func CanDelete(next echo.HandlerFunc) echo.HandlerFunc {
-	const op errors.Op = "middleware/perms.CanDelete"
+func canWrite(c echo.Context, next echo.HandlerFunc) error {
+	const op errors.Op = "middleware/perms.canWrite"
 
-	if !viper.IsSet("jwt") || !viper.IsSet("jwt.roles") {
-		return func(c echo.Context) error { return next(c) }
+	userPerms := getUserPerms(c)
+	canWrite := strings.Contains(userPerms, "w")
+	if !canWrite {
+		return errors.E(op, errors.Authentication)
+	}
+
+	if err := next(c); err != nil {
+		errors.E(err, op)
+	}
+	return nil
+}
+
+func CanDelete(next echo.HandlerFunc) echo.HandlerFunc {
+
+	skip := func(c echo.Context) error { return next(c) }
+	noAuth := !viper.IsSet("jwt") && !viper.IsSet("admin")
+	noRoleCheck := !viper.IsSet("roles")
+	if noAuth || noRoleCheck {
+		return skip
 	}
 
 	return func(c echo.Context) error {
-		canDelete := c.Get("delete").(bool)
-		if !canDelete {
-			return errors.E(op, errors.Authentication)
+		if pathSkip(c.Path()) {
+			return next(c)
 		}
 
-		if err := next(c); err != nil {
-			errors.E(err, op)
-		}
-		return nil
+		return canDelete(c, next)
 	}
+}
+
+func canDelete(c echo.Context, next echo.HandlerFunc) error {
+	const op errors.Op = "middleware/perms.canDelete"
+
+	userPerms := getUserPerms(c)
+	canDelete := strings.Contains(userPerms, "d")
+	if !canDelete {
+		return errors.E(op, errors.Authentication)
+	}
+
+	if err := next(c); err != nil {
+		errors.E(err, op)
+	}
+	return nil
+}
+
+func getUserPerms(c echo.Context) string {
+	userRole, ok := c.Get("role").(string)
+	if !ok {
+		user, ok := c.Get("user").(*jwt.Token)
+		if !ok {
+			return ""
+		}
+		claims := user.Claims.(jwt.MapClaims)
+		userRole = claims["role"].(string)
+	}
+
+	var userRolePerms string
+	for _, configRole := range viper.GetStringSlice("roles") {
+		split := strings.Split(configRole, ":")
+		configRoleName := split[0]
+		configRolePerms := split[1]
+		if configRoleName == userRole {
+			userRolePerms = configRolePerms
+		}
+	}
+
+	return userRolePerms
 }
