@@ -34,7 +34,7 @@ func New() *Server {
 
 func (a *Server) setRoutes() {
 	spa := middleware.ServeSPA()
-	jwt := middleware.JWT()
+	jwt := middleware.JWT
 	issuer := middleware.ISS
 	basicAuth := middleware.BasicAuth()
 	canRead := middleware.CanRead

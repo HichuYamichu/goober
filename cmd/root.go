@@ -64,11 +64,8 @@ func verifyConfig() error {
 	}
 
 	if viper.IsSet("jwt") {
-		if !viper.IsSet("jwt.type") {
-			return fmt.Errorf("jwt.type must be set when jwt is enabled")
-		}
-		if !viper.IsSet("jwt.key") {
-			return fmt.Errorf("jwt.key must be set when jwt is enabled")
+		if (!viper.IsSet("jwt.type") || !viper.IsSet("jwt.key")) && !viper.IsSet("jwt.jwk_url") {
+			return fmt.Errorf("jwt type/key pair or jwt_url must be set when jwt is enabled")
 		}
 	}
 

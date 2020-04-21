@@ -5,7 +5,6 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/hichuyamichu-me/goober/errors"
 	"github.com/labstack/echo/v4"
 )
@@ -75,7 +74,6 @@ func canWrite(c echo.Context, next echo.HandlerFunc) error {
 }
 
 func CanDelete(next echo.HandlerFunc) echo.HandlerFunc {
-
 	skip := func(c echo.Context) error { return next(c) }
 	noAuth := !viper.IsSet("jwt") && !viper.IsSet("admin")
 	noRoleCheck := !viper.IsSet("roles")
@@ -110,12 +108,7 @@ func canDelete(c echo.Context, next echo.HandlerFunc) error {
 func getUserPerms(c echo.Context) string {
 	userRole, ok := c.Get("role").(string)
 	if !ok {
-		user, ok := c.Get("user").(*jwt.Token)
-		if !ok {
-			return ""
-		}
-		claims := user.Claims.(jwt.MapClaims)
-		userRole = claims["role"].(string)
+		return ""
 	}
 
 	var userRolePerms string
@@ -125,6 +118,7 @@ func getUserPerms(c echo.Context) string {
 		configRolePerms := split[1]
 		if configRoleName == userRole {
 			userRolePerms = configRolePerms
+			break
 		}
 	}
 
