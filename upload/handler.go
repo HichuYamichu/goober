@@ -2,8 +2,10 @@ package upload
 
 import (
 	"fmt"
+	"mime/multipart"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hichuyamichu-me/goober/errors"
@@ -90,6 +92,10 @@ func (h *Handler) Upload(c echo.Context) error {
 	domain := viper.GetString("domain")
 	upl := make([]*uploads, len(files))
 	for i, file := range files {
+		err := testExtention(file)
+		if err != nil {
+			return errors.E(op, errors.Invalid, err)
+		}
 		fName, err := h.uplServ.Save(file)
 		if err != nil {
 			res := &uploadResult{Success: false, Files: upl}
@@ -105,6 +111,16 @@ func (h *Handler) Upload(c echo.Context) error {
 
 	res := &uploadResult{Success: true, Files: upl}
 	return c.JSON(http.StatusOK, res)
+}
+
+func testExtention(f *multipart.FileHeader) error {
+	exts := viper.GetStringSlice("blocked_extentions")
+	for _, sufix := range exts {
+		if strings.HasSuffix(f.Filename, sufix) {
+			return errors.Errorf("illegal file extention")
+		}
+	}
+	return nil
 }
 
 // Delete deletes specyfied file

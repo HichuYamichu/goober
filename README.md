@@ -34,9 +34,12 @@ Goober can be plugged into postgres, mysql, mssql or use sqlite3 by default. Set
 host: 'localhost' # default: localhost
 port: '9000' # default: 3000
 domain: 'localhost:9000' # default: localhost:3000
-upload_dir: ./data # default: ./data
+upload_dir: './data' # default: ./data
 frontend: true # default: true
 skip_serving_auth: true # default: false
+max_body_size: '512MB' # default: 512MB
+blocked_extentions:
+  - .exe
 admin:
   - 'admin:admin'
   - 'user:user'

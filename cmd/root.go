@@ -38,6 +38,7 @@ func init() {
 	viper.SetDefault("frontend", true)
 	viper.SetDefault("skip_serving_auth", false)
 	viper.SetDefault("skip_frontend_auth", false)
+	viper.SetDefault("max_body_size", "512MB")
 
 	err = verifyConfig()
 	if err != nil {
