@@ -57,7 +57,7 @@ func doJWT(c echo.Context, next echo.HandlerFunc) error {
 	if err == nil && token.Valid {
 		c.Set("user", token)
 		claims := token.Claims.(jwt.MapClaims)
-		c.Set("role", claims["role"])
+		c.Set("role", claims["x-goober-role"])
 		return next(c)
 	}
 	return &echo.HTTPError{

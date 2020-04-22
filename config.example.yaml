@@ -1,8 +1,24 @@
-port: ''
-host: ''
-db_host: ''
-db_port: ''
-db_user: ''
-db_name: ''
-db_pass: ''
-upload_dir: ''
+host: '0.0.0.0'
+port: '9000'
+domain: 'localhost:9000'
+upload_dir: ./data
+frontend: true
+# skip_serving_auth: true
+# skip_frontend_auth: true
+# admin:
+#   - 'admin:admin:admin'
+#   - 'hy:hy'
+jwt:
+  # type: 'HS256'
+  # key: 'secret'
+  jwk_url: 'http://localhost:4444/.well-known/jwks.json'
+  # issuer: ''
+# roles:
+#   - 'admin:rwd'
+db:
+  type: 'postgres'
+  host: 'localhost'
+  name: 'goober'
+  pass: 'postgres'
+  port: '5432'
+  user: 'postgres'
