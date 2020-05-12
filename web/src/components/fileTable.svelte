@@ -1,7 +1,7 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { user, files, page } from "../../store";
-  import { api } from "../../api";
+  import { files, page } from "../store";
+  import { api } from "../api";
   import moment from "moment";
 
   async function handleDelete(id) {

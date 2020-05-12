@@ -1,11 +1,3 @@
-import { user } from '../store';
-
-let userValue;
-
-user.subscribe((value) => {
-  userValue = value;
-});
-
 export class HTTPClient {
   constructor() {
     this.json = 'application/json';
@@ -16,7 +8,6 @@ export class HTTPClient {
       method: 'GET',
       headers: {
         Accept: this.json,
-        token: userValue.token,
       },
     });
   }
@@ -24,7 +15,6 @@ export class HTTPClient {
   async post(endpoint, body) {
     const headers = {
       Accept: this.json,
-      token: userValue.token,
       'Content-Type': this.json,
     };
     if (body instanceof FormData) {
@@ -39,7 +29,6 @@ export class HTTPClient {
       body,
       headers: {
         Accept: this.json,
-        token: userValue.token,
         'Content-Type': this.json,
       },
     });

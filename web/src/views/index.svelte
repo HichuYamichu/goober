@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { files } from "../store";
   import { api } from "../api";
-  import Tabs from "../components/indexTabs.svelte";
+  import FilesTable from "../components/fileTable.svelte";
 
   async function handleUpload(event) {
     const formData = new FormData();
@@ -52,7 +52,7 @@
   </section>
   <section class="section">
     <div class="container">
-      <Tabs />
+      <FilesTable />
     </div>
   </section>
 </main>

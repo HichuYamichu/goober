@@ -18,10 +18,9 @@ WORKDIR /build
 
 COPY ./web .
 
-RUN curl -L https://unpkg.com/@pnpm/self-installer | node \
-&& pnpm i 
+RUN npm i 
 
-RUN pnpm run build
+RUN npm run build
 
 FROM alpine
 

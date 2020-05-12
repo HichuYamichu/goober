@@ -1,11 +1,8 @@
 <script>
   import "./scss-entrypoint.scss";
-  import { user, files } from "./store";
+  import { files } from "./store";
   import { api } from "./api";
   import Index from "./views/index.svelte";
-  import Auth from "./views/auth.svelte";
-
-  user.useSessionStorage();
 
   async function handlePaste(event) {
     for (const item of event.clipboardData.items) {
@@ -32,9 +29,5 @@
 </svelte:head>
 
 <main on:paste|preventDefault={handlePaste}>
-  {#if $user.username}
-    <Index />
-  {:else}
-    <Auth />
-  {/if}
+  <Index />
 </main>
