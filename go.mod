@@ -8,7 +8,7 @@ require (
 	github.com/docker/distribution v2.7.1+incompatible
 	github.com/docker/libtrust v0.0.0-20160708172513-aabc10ec26b7 // indirect
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
-	github.com/go-playground/validator/v10 v10.2.0
+	github.com/go-playground/validator/v10 v10.3.0
 	github.com/google/go-cmp v0.3.0 // indirect
 	github.com/jinzhu/gorm v1.9.11
 	github.com/labstack/echo v3.3.10+incompatible
