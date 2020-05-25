@@ -17,7 +17,10 @@ var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "starts goober's http server",
 	Run: func(cmd *cobra.Command, args []string) {
-		server := server.New()
+		server, err := server.New()
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		go func() {
 			done := make(chan os.Signal, 1)

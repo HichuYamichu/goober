@@ -3,10 +3,22 @@ package middleware
 import (
 	"strings"
 
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/viper"
 )
 
-type skipper struct{}
+func Logger() echo.MiddlewareFunc {
+	return middleware.Logger()
+}
+
+func BodyLimit() echo.MiddlewareFunc {
+	return middleware.BodyLimit(viper.GetString("max_body_size"))
+}
+
+func Recover() echo.MiddlewareFunc {
+	return middleware.Recover()
+}
 
 func pathSkip(path string) bool {
 	return serveFilesSkip(path) || spaSkip(path)

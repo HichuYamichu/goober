@@ -78,19 +78,19 @@ func (h *Handler) Upload(c echo.Context) error {
 	}
 	files := form.File["files"]
 
-	type uploads struct {
+	type upload struct {
 		URL  string `json:"url"`
 		Name string `json:"name"`
 		Size int64  `json:"size"`
 	}
 
 	type uploadResult struct {
-		Files   []*uploads `json:"files"`
-		Success bool       `json:"success"`
+		Files   []*upload `json:"files"`
+		Success bool      `json:"success"`
 	}
 
 	domain := viper.GetString("domain")
-	upl := make([]*uploads, len(files))
+	upl := make([]*upload, len(files))
 	for i, file := range files {
 		err := testExtention(file)
 		if err != nil {
@@ -101,7 +101,7 @@ func (h *Handler) Upload(c echo.Context) error {
 			res := &uploadResult{Success: false, Files: upl}
 			return c.JSON(http.StatusInternalServerError, res)
 		}
-		u := &uploads{
+		u := &upload{
 			URL:  fmt.Sprintf("https://%s/files/%s", domain, fName),
 			Name: file.Filename,
 			Size: file.Size,

@@ -7,32 +7,51 @@ import (
 	"github.com/hichuyamichu-me/goober/db"
 	"github.com/hichuyamichu-me/goober/server/middleware"
 	"github.com/hichuyamichu-me/goober/upload"
+	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 )
 
 // Server main server struct
 type Server struct {
 	router        *echo.Echo
+	db            *gorm.DB
 	uploadHandler *upload.Handler
 }
 
 // New bootstraps server
-func New() *Server {
-	db := db.Connect()
+func New() (*Server, error) {
+	db, err := db.Connect()
+	if err != nil {
+		return nil, err
+	}
 
 	uploadRepo := upload.NewRepository(db)
 	uploadService := upload.NewService(uploadRepo)
 	uploadHandler := upload.NewHandler(uploadService)
 
 	server := &Server{
-		router:        router(),
+		router:        echo.New(),
+		db:            db,
 		uploadHandler: uploadHandler,
 	}
+	server.configure()
 	server.setRoutes()
-	return server
+	return server, nil
 }
 
-func (a *Server) setRoutes() {
+func (s *Server) configure() {
+	s.router.HideBanner = true
+	s.router.HTTPErrorHandler = httpErrorHandler
+	s.router.Validator = NewValidator()
+	s.router.Logger.SetLevel(log.INFO)
+
+	s.router.Use(middleware.Logger())
+	s.router.Use(middleware.Recover())
+	s.router.Use(middleware.BodyLimit())
+}
+
+func (s *Server) setRoutes() {
 	spa := middleware.ServeSPA()
 	jwt := middleware.JWT
 	issuer := middleware.ISS
@@ -41,24 +60,25 @@ func (a *Server) setRoutes() {
 	canWrite := middleware.CanWrite
 	canDelete := middleware.CanDelete
 
-	a.router.Use(jwt, issuer, basicAuth)
-	a.router.GET("/files/:id", a.uploadHandler.Download, canRead)
+	s.router.Use(jwt, issuer, basicAuth)
+	s.router.GET("/files/:id", s.uploadHandler.Download, canRead)
 
-	api := a.router.Group("/api")
+	api := s.router.Group("/api")
 	uploadsAPI := api.Group("/uploads")
-	uploadsAPI.GET("/:page", a.uploadHandler.Files, canRead)
-	uploadsAPI.POST("", a.uploadHandler.Upload, canWrite)
-	uploadsAPI.DELETE("", a.uploadHandler.Delete, canDelete)
+	uploadsAPI.GET("/:page", s.uploadHandler.Files, canRead)
+	uploadsAPI.POST("", s.uploadHandler.Upload, canWrite)
+	uploadsAPI.DELETE("", s.uploadHandler.Delete, canDelete)
 
-	a.router.Use(spa)
+	s.router.Use(spa)
 }
 
 // Shutdown shuts down the server
-func (a *Server) Shutdown(ctx context.Context) {
-	a.router.Shutdown(ctx)
+func (s *Server) Shutdown(ctx context.Context) {
+	s.router.Shutdown(ctx)
+	s.db.Close()
 }
 
 // Start starts the server
-func (a *Server) Start(host string, port string) error {
-	return a.router.Start(fmt.Sprintf("%s:%s", host, port))
+func (s *Server) Start(host string, port string) error {
+	return s.router.Start(fmt.Sprintf("%s:%s", host, port))
 }

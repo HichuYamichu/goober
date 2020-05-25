@@ -2,7 +2,6 @@ package db
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -13,7 +12,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Connect() *gorm.DB {
+func Connect() (*gorm.DB, error) {
 	dbHost := viper.GetString("db.host")
 	dbPort := viper.GetString("db.port")
 	dbUser := viper.GetString("db.user")
@@ -35,7 +34,7 @@ func Connect() *gorm.DB {
 	}
 	db, err := gorm.Open(dbType, connStr)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	return db
+	return db, nil
 }
