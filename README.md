@@ -14,9 +14,9 @@ Goober comes with small and lightweight web frontend. Enabled by default.
 
 By default Goober does not restrict access to it's apis but it can be configured to use Basic Auth (https highly advised), JWT and role based authorization.
 
-If `jwt.type` and `jwt.key` are set in configuration file Goober is going to look for valid JWTs and deny unauthorized requests. Alternatively you can specyfy `jwt.jwk_url` In which case Goober is going to fetch public keys on startup and use them to validate requests. Set `jwt.issuer` to validate issuer.
+If `jwt.type` and `jwt.key` are set in configuration file Goober is going to look for valid JWTs and deny unauthorized requests. Alternatively you can specyfy `jwt.jwk_url` in which case Goober is going to fetch public keys on startup and use them to validate requests. Set `jwt.issuer` to validate issuer.
 
-In order to enable Basic Auth you just need to define local users in config file like so `admin: username:password:role`. Admin field can be an array. role field is optional.
+In order to enable Basic Auth you just need to define local users in config file like so `admin: username:password:role`. Admin field can be an array. Role field is optional.
 
 If you want to use role based authorization you just need to define allowed roles in config file. If you do so Goober is going to look for `x-goober-role` claim in jwt payload (or check last value in `username:password:role` triplet). Role format looks like this: `rolename:permissions`. Valid permissions values are r - read, w - write, d - delete.
 
