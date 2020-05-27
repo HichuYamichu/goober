@@ -24,10 +24,10 @@ RUN npm run build
 
 FROM alpine
 
-WORKDIR /uploder
+WORKDIR /goober
 
-COPY --from=go-build /build/goober /uploder/
-COPY --from=node-build /build/public/ /uploder/web/public
+COPY --from=go-build /build/goober /goober/
+COPY --from=node-build /build/public/ /goober/web/public
 
 EXPOSE 9000
 
