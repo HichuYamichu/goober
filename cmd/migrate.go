@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/hichuyamichu-me/goober/db"
-	"github.com/hichuyamichu-me/goober/upload"
+	"github.com/hichuyamichu-me/goober/files"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +17,7 @@ var migrateCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 		defer db.Close()
-		db.DropTableIfExists(&upload.File{})
-		db.AutoMigrate(&upload.File{})
+		db.DropTableIfExists(&files.File{})
+		db.AutoMigrate(&files.File{})
 	},
 }

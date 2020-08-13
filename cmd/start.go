@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/hichuyamichu-me/goober/db"
 	"github.com/hichuyamichu-me/goober/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -17,7 +18,12 @@ var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "starts goober's http server",
 	Run: func(cmd *cobra.Command, args []string) {
-		server, err := server.New()
+		db, err := db.Connect()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		server, err := server.New(db)
 		if err != nil {
 			log.Fatal(err)
 		}
