@@ -8,11 +8,10 @@ import (
 	"time"
 
 	"github.com/hichuyamichu-me/goober/errors"
-	"github.com/hichuyamichu-me/goober/files"
 	"github.com/hichuyamichu-me/goober/server/middleware"
+	"github.com/hichuyamichu-me/goober/upload"
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 )
@@ -20,7 +19,7 @@ import (
 // Server main server struct
 type Server struct {
 	router     *echo.Echo
-	uploadRepo *files.Repository
+	uploadRepo *upload.Repository
 	db         *gorm.DB
 	domain     string
 }
@@ -29,7 +28,7 @@ type Server struct {
 func New(db *gorm.DB) (*Server, error) {
 	s := &Server{
 		router:     echo.New(),
-		uploadRepo: files.NewRepository(db),
+		uploadRepo: upload.NewRepository(db),
 		db:         db,
 		domain:     viper.GetString("domain"),
 	}
@@ -37,38 +36,35 @@ func New(db *gorm.DB) (*Server, error) {
 	s.router.HideBanner = true
 	s.router.HTTPErrorHandler = httpErrorHandler
 	s.router.Validator = NewValidator()
-	s.router.Logger.SetLevel(log.INFO)
 
 	s.router.Use(middleware.Logger())
 	s.router.Use(middleware.Recover())
 	s.router.Use(middleware.BodyLimit())
 
-	jwt := middleware.JWT
-	issuer := middleware.ISS
-	basicAuth := middleware.BasicAuth()
-	canRead := middleware.CanRead
-	canWrite := middleware.CanWrite
-	canDelete := middleware.CanDelete
-
-	s.router.Use(jwt, issuer, basicAuth)
-	s.router.GET("/:id", s.Download, canRead)
-
-	s.router.GET("/list/:page", s.Files, canRead)
-	s.router.POST("", s.Upload, canWrite)
-	s.router.DELETE("", s.Delete, canDelete)
+	s.router.Use(middleware.Auth())
+	s.router.GET("/:id", s.Download)
+	s.router.GET("/list/:page", s.Files)
+	s.router.POST("", s.Upload)
+	s.router.DELETE("", s.Delete)
 
 	return s, nil
 }
 
-// Shutdown shuts down the server
 func (s *Server) Shutdown(ctx context.Context) {
-	s.router.Shutdown(ctx)
+	_ = s.router.Shutdown(ctx)
 	s.db.Close()
 }
 
-// Start starts the server
 func (s *Server) Start(host string, port string) error {
 	return s.router.Start(fmt.Sprintf("%s:%s", host, port))
+}
+
+type uploadFile struct {
+	ID     string `json:"id"`
+	URL    string `json:"url,omitempty"`
+	Name   string `json:"name"`
+	Size   int64  `json:"size"`
+	Reason error  `json:"reason,omitempty"`
 }
 
 func (s *Server) Upload(c echo.Context) error {
@@ -80,27 +76,21 @@ func (s *Server) Upload(c echo.Context) error {
 	}
 	files := form.File["files"]
 
-	type upload struct {
-		URL    string `json:"url,omitempty"`
-		Name   string `json:"name"`
-		Size   int64  `json:"size"`
-		Reason error  `json:"reason,omitempty"`
-	}
-
 	type uploadResult struct {
-		Succeeded []*upload `json:"succeeded"`
-		Failed    []*upload `json:"failed"`
+		Succeeded []*uploadFile `json:"succeeded"`
+		Failed    []*uploadFile `json:"failed"`
 	}
 
-	succeeded := make([]*upload, 0)
-	failed := make([]*upload, 0)
+	succeeded := make([]*uploadFile, 0)
+	failed := make([]*uploadFile, 0)
 	for _, file := range files {
 		id, err := s.uploadRepo.Save(file)
 		if err != nil {
-			u := &upload{Name: file.Filename, Size: file.Size, Reason: err}
+			u := &uploadFile{Name: file.Filename, Size: file.Size, Reason: err}
 			failed = append(failed, u)
 		}
-		u := &upload{
+		u := &uploadFile{
+			ID:   id,
 			URL:  fmt.Sprintf("https://%s/%s", s.domain, id),
 			Name: file.Filename,
 			Size: file.Size,
@@ -166,17 +156,34 @@ func (s *Server) Delete(c echo.Context) error {
 		return errors.E(err, errors.Invalid, op)
 	}
 
+	succeeded := make([]*uploadFile, 0)
+	failed := make([]*uploadFile, 0)
 	for _, id := range p.IDs {
 		id, err := uuid.FromString(id)
 		if err != nil {
-			return errors.E(err, errors.Invalid, op)
+			u := &uploadFile{ID: id.String(), Reason: err}
+			failed = append(failed, u)
 		}
 
-		err = s.uploadRepo.Delete(id)
+		file, err := s.uploadRepo.Delete(id)
 		if err != nil {
-			return errors.E(err, errors.Invalid, op)
+			u := &uploadFile{ID: id.String(), Name: file.Name, Size: file.Size, Reason: err}
+			failed = append(failed, u)
 		}
+
+		u := &uploadFile{
+			ID:   id.String(),
+			Name: file.Name,
+			Size: file.Size,
+		}
+		succeeded = append(succeeded, u)
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{"message": "file deleted successfully"})
+	type deleteResult struct {
+		Succeeded []*uploadFile `json:"succeeded"`
+		Failed    []*uploadFile `json:"failed"`
+	}
+
+	res := &deleteResult{Succeeded: succeeded, Failed: failed}
+	return c.JSON(http.StatusOK, res)
 }

@@ -1,4 +1,4 @@
-package files
+package upload
 
 import (
 	"mime/multipart"
@@ -85,18 +85,22 @@ func (r *Repository) List(page int) ([]*File, int, error) {
 	return files, total, nil
 }
 
-func (r *Repository) Delete(id uuid.UUID) error {
+func (r *Repository) Delete(id uuid.UUID) (*File, error) {
 	const op errors.Op = "upload/service.DeleteFile"
 
-	file := &File{ID: id}
+	file := &File{}
+	if err := r.db.Where(&File{ID: id}).Find(&file).Error; err != nil {
+		return nil, errors.E(err, errors.Internal, op)
+	}
+
 	if err := r.db.Delete(file).Error; err != nil {
-		return errors.E(err, errors.Internal, op)
+		return nil, errors.E(err, errors.Internal, op)
 	}
 
 	err := r.fs.Remove(id.String())
 	if err != nil {
-		return errors.E(err, errors.IO, op)
+		return nil, errors.E(err, errors.IO, op)
 	}
 
-	return nil
+	return file, nil
 }
